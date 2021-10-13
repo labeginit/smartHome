@@ -1,6 +1,8 @@
 package com.example.serverdatabase;
 
+import com.example.serverdatabase.DeviceTypes.Curtain;
 import com.example.serverdatabase.DeviceTypes.Lamp;
+import com.example.serverdatabase.DeviceTypes.Thermometer;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -17,30 +19,40 @@ public class Responder implements WebMvcConfigurer {
 
 
     /*
-    Curl POST Request = curl -X POST http://localhost:8080/changeDeviceStatus -H "Content-Type: application/json" -d "{\"deviceName\":\"Kitchen Lamp\",\"status\":\"off\"}" -s | jq
+    Curl POST Request for different devices
+    lamp = curl -X POST http://localhost:8080/changeDeviceStatus -H "Content-Type: application/json" -d "{\"_id\":\"Kitchen Lamp\",\"on\":\"false\"}" -s | jq
+    thermometer = curl -X POST http://localhost:8080/changeDeviceStatus -H "Content-Type: application/json" -d "{\"_id\":\"Livingroom Thermometer\",\"temp\":\"19.2\"}" -s | jq
+    curtain = curl -X POST http://localhost:8080/changeDeviceStatus -H "Content-Type: application/json" -d "{\"_id\":\"Livingroom Curtain\",\"open\":\"false\"}" -s | jq
      */
 
 
     @RequestMapping(value = "/changeDeviceStatus", method = RequestMethod.POST, headers = "Accept=*/*", produces = "application/json", consumes = "application/json")
     public Object postResponse(@RequestBody String keyword) {
-        JsonObject jsonObject = new JsonParser().parse(keyword).getAsJsonObject();
+        JsonObject userInput = new JsonParser().parse(keyword).getAsJsonObject(); // User POST Request
+        HashMap<String, String> response = new HashMap<>();
 
-        String deviceName = String.valueOf(jsonObject.get("deviceName")).replace("\"", "");
-        String status = String.valueOf(jsonObject.get("status")).replace("\"", "");
+        String deviceID = String.valueOf(userInput.get("_id")).replace("\"", "");
+        Document dbResponse = DBConnector.findDevice(deviceID);
 
-        Document dbResponse = DBConnector.findDevice(deviceName);
-        if (dbResponse != null) {
-            HashMap<String, String> response = new HashMap<>();
-            if (!(dbResponse.get("status").equals(status))) {
-                DBConnector.changeDeviceStatus(deviceName, status);
-                response.put("operation", "success");
-            } else {
-                response.put("operation", "failed");
-                response.put("reason", deviceName + " is already " + status);
-            }
-            return response;
+        String deviceToBeChanged = dbResponse.get("device").toString();
+
+        if (deviceToBeChanged.equals("lamp")) {
+            String on = String.valueOf(userInput.get("on")).replace("\"", "");
+            response = lampHandler(dbResponse, deviceID, on, userInput);
         }
-        return "An error has occurred, please try again";
+        if (deviceToBeChanged.equals("thermometer")) {
+            String temp = String.valueOf(userInput.get("temp")).replace("\"", "");
+            response = thermometerHandler(dbResponse, deviceID, temp, userInput);
+        }
+        if (deviceToBeChanged.equals("curtain")) {
+            boolean open = Boolean.parseBoolean(userInput.get("open").toString().replace("\"", ""));
+            response = curtainHandler(dbResponse, deviceID, open, userInput);
+        }
+
+        if (!(response == null))
+            return response;
+        else
+            return "An error has occurred, please try again";
     }
 
     @GetMapping("/getAllDeviceStatuses")
@@ -50,18 +62,67 @@ public class Responder implements WebMvcConfigurer {
         while (cursor.hasNext()) {
             Document article = cursor.next();
             String deviceType = (String) article.get("device");
-            if (deviceType.equals("Lamp")) {
-                Lamp lamp = new Lamp(String.valueOf(article.get("_id")), String.valueOf(article.get("status")), String.valueOf(article.get("name")));
+            String id = String.valueOf(article.get("_id"));
+            if (deviceType.equals("lamp")) {
+                Lamp lamp = new Lamp(id, Boolean.parseBoolean(article.get("on").toString()));
                 responseMap.add(lamp);
+            }
+            if (deviceType.equals("thermometer")) {
+                Thermometer thermometer = new Thermometer(id, Double.parseDouble(article.get("temp").toString()));
+                responseMap.add(thermometer);
+            }
+            if (deviceType.equals("curtain")) {
+                Curtain curtain = new Curtain(id, Boolean.parseBoolean(article.get("open").toString()));
+                responseMap.add(curtain);
             }
         }
         Gson gson = new Gson();
         return gson.toJson(responseMap);
     }
 
-    @GetMapping("/testAPI")
-    public String welcomePage() {
-        return "API is working!";
+    private static HashMap<String, String> lampHandler(Document dbResponse, String deviceID, String on, JsonObject jsonObject) {
+        if (dbResponse != null) {
+            HashMap<String, String> response = new HashMap<>();
+            if (!(dbResponse.get("on").toString().equals(on))) {
+                DBConnector.changeDeviceStatus("lamp", jsonObject);
+                response.put("operation", "success");
+            } else {
+                response.put("operation", "failed");
+                response.put("reason", deviceID + " is already " + on);
+            }
+            return response;
+        }
+        return null;
+    }
+
+    private static HashMap<String, String> thermometerHandler(Document dbResponse, String deviceID, String temp, JsonObject jsonObject) {
+        if (dbResponse != null) {
+            HashMap<String, String> response = new HashMap<>();
+            if (!(dbResponse.get("temp").toString().equals(temp))) {
+                DBConnector.changeDeviceStatus("thermometer", jsonObject);
+                response.put("operation", "success");
+            } else {
+                response.put("operation", "failed");
+                response.put("reason", deviceID + " is already " + temp);
+            }
+            return response;
+        }
+        return null;
+    }
+
+    private static HashMap<String, String> curtainHandler(Document dbResponse, String deviceID, boolean open, JsonObject jsonObject) {
+        if (dbResponse != null) {
+            HashMap<String, String> response = new HashMap<>();
+            if (!(dbResponse.get("open").toString().equals(String.valueOf(open)))) {
+                DBConnector.changeDeviceStatus("curtain", jsonObject);
+                response.put("operation", "success");
+            } else {
+                response.put("operation", "failed");
+                response.put("reason", deviceID + " is already " + open);
+            }
+            return response;
+        }
+        return null;
     }
 }
 

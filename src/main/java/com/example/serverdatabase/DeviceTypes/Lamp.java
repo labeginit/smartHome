@@ -2,11 +2,11 @@ package com.example.serverdatabase.DeviceTypes;
 
 public class Lamp {
 
-    String deviceID, status, name;
+    String deviceID;
+    boolean on;
 
-    public Lamp(String deviceID, String status, String name) {
+    public Lamp(String deviceID, boolean on) {
         this.deviceID = deviceID;
-        this.status = status;
-        this.name = name;
+        this.on = on;
     }
 }
