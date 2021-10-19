@@ -49,9 +49,11 @@ public class Responder implements WebMvcConfigurer {
             response = curtainHandler(dbResponse, deviceID, open, userInput);
         }
 
-        if (!(response == null))
+        if (!(response == null)) {
+            if (response.get("operation").equals("success"))
+                WebSocketHandler.broadcastMessage(String.valueOf(response));
             return response;
-        else
+        } else
             return "An error has occurred, please try again";
     }
 
@@ -85,6 +87,8 @@ public class Responder implements WebMvcConfigurer {
             HashMap<String, String> response = new HashMap<>();
             if (!(dbResponse.get("on").toString().equals(on))) {
                 DBConnector.changeDeviceStatus("lamp", jsonObject);
+                response.put("device", "lamp");
+                response.put("option", on);
                 response.put("operation", "success");
             } else {
                 response.put("operation", "failed");
@@ -100,6 +104,8 @@ public class Responder implements WebMvcConfigurer {
             HashMap<String, String> response = new HashMap<>();
             if (!(dbResponse.get("temp").toString().equals(temp))) {
                 DBConnector.changeDeviceStatus("thermometer", jsonObject);
+                response.put("device", "thermometer");
+                response.put("option", temp);
                 response.put("operation", "success");
             } else {
                 response.put("operation", "failed");
@@ -115,6 +121,8 @@ public class Responder implements WebMvcConfigurer {
             HashMap<String, String> response = new HashMap<>();
             if (!(dbResponse.get("open").toString().equals(String.valueOf(open)))) {
                 DBConnector.changeDeviceStatus("curtain", jsonObject);
+                response.put("device", "curtain");
+                response.put("option", String.valueOf(open));
                 response.put("operation", "success");
             } else {
                 response.put("operation", "failed");
@@ -125,5 +133,3 @@ public class Responder implements WebMvcConfigurer {
         return null;
     }
 }
-
-

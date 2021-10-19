@@ -13,7 +13,7 @@ import org.bson.conversions.Bson;
 
 public class DBConnector {
 
-    public static final String dbURI = "SECRET"; // Contact "Hugo Sigurdson" to get the URI
+    public static final String dbURI = ""; // Contact "Hugo Sigurdson" to get the URI
     public static final MongoClient mongoClient = new MongoClient(new MongoClientURI(dbURI));
     public static final MongoDatabase database = mongoClient.getDatabase("SEGFour");
     public static final MongoCollection<Document> collection = database.getCollection("Devices");
