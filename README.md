@@ -12,12 +12,14 @@ Documentation of how to use the API.
 
 ## Dependencies | Maven
 
-Two dependencies will be utilized. GSON is used for parsing JSON. MongoDB is used for connecting to the database.
+Three dependencies will be utilized. GSON is used for parsing JSON. MongoDB is used for connecting to the database. 
+And Websocket is used for keeping track of clients connected and to broadcast messages. 
 
 | Library | Version | Link |
 | ------ | ------ | ------ | 
 | GSON | 2.8.5 | https://mvnrepository.com/artifact/com.google.code.gson/gson/2.8.5
 | MongoDB | 3.12.5 | https://mvnrepository.com/artifact/org.mongodb/mongo-java-driver/3.12.5
+| Spring-Websocket | 5.2.2 | https://mvnrepository.com/artifact/org.springframework/spring-websocket/5.2.2.RELEASE
 
 ## # Documentation for Units group
 
@@ -64,4 +66,10 @@ The response comes in two alternatives, either if the request was successful or 
 #### failed
 ```json
 {"reason":"Kitchen Lamp is already off","operation":"failed"}
+```
+### Broadcasting
+Once a user uses the Endpoint **/changeDeviceStatus**, a message will be broadcasted to each client. 
+#### Curtain changed example
+```json
+{"device":"curtain", "operation":"success", "option":"true"}
 ```
