@@ -6,6 +6,7 @@ import org.springframework.web.socket.handler.AbstractWebSocketHandler;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class WebSocketHandler extends AbstractWebSocketHandler {
 
@@ -22,6 +23,9 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         switch (msg) {
             case ("getDevices"):
                 session.sendMessage(new TextMessage(responder.allStatuses()));
+                break;
+            case ("getTV"):
+                session.sendMessage(new TextMessage(responder.getTvStatus()));
                 break;
             default:
                 System.out.println("Connected to Client");
