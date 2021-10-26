@@ -1,5 +1,6 @@
 package com.example.serverdatabase;
 
+import com.example.serverdatabase.DeviceConnector.HttpHandler;
 import com.example.serverdatabase.DeviceTypes.Curtain;
 import com.example.serverdatabase.DeviceTypes.Lamp;
 import com.example.serverdatabase.DeviceTypes.Thermometer;
@@ -8,16 +9,24 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mongodb.client.MongoCursor;
+
+import javax.ws.rs.core.Response;
+
 import org.bson.Document;
+import org.json.JSONException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.UUID;
 
 @RestController
 public class Responder implements WebMvcConfigurer {
     private final static String TV = "tv";
+
+    private HttpHandler httpHandler;
 
     /*
     Curl POST Request for different devices
@@ -160,5 +169,27 @@ public class Responder implements WebMvcConfigurer {
         response.put("option", String.valueOf(newState));
         response.put("operation", "success");
         return response;
+    }
+    //This End point for testing
+    @RequestMapping(value = "/changeStatus", method = RequestMethod.PUT, headers = "Accept=*/*", produces = "application/json", consumes = "application/json")
+    public String changeStatus() throws IOException, InterruptedException, JSONException {
+        // We can change them from the input from the Unit group.
+        String deviceId = "1";
+        String status = "on";
+        httpHandler = new HttpHandler();
+        httpHandler.changeLampStatus(deviceId, status);
+        String re = httpHandler.changeLampStatus(deviceId, status);
+        return re;
+    }
+
+    public void changeLampStatus(String deviceId, String status) throws JSONException, IOException, InterruptedException {
+        httpHandler = new HttpHandler();
+        String response = httpHandler.changeLampStatus(deviceId, status);
+        if (response.equalsIgnoreCase("ok")){
+            //Update the status in the database
+        }else {
+            //send an error message to the Unit
+        }
+
     }
 }
