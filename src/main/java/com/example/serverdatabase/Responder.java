@@ -150,7 +150,7 @@ public class Responder implements WebMvcConfigurer {
     }
 
     private static HashMap<String, String> tvHandler(String deviceID, boolean state, JsonObject jsonObject) {
-        HashMap<String, String> response = new HashMap<>();  //no DB involved
+        HashMap<String, String> response = new HashMap<>();  //no DB involved (for now)
 
         //we are not going to use the value received from the Mindwave, we will invert the current state
         boolean currentState = Singleton.getInstance().getState();
