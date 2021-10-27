@@ -2,11 +2,11 @@ package com.example.serverdatabase;
 
 public class Singleton {
     private static Singleton TvData;
-    private boolean state;
+    private boolean on;
     private int channel;
 
     private Singleton(){
-        state = false;
+        on = false;
         channel = 1;
     }
 
@@ -17,11 +17,11 @@ public class Singleton {
     }
 
     public boolean getState(){
-        return state;
+        return on;
     }
 
-    public void setState(boolean state){
-        this.state = state;
+    public void setState(boolean on){
+        this.on = on;
     }
 
     public int getChannel() {
@@ -32,6 +32,12 @@ public class Singleton {
         this.channel = channel;
     }
 
-
+/*
+        Will be replaced with DB requests soon.
+        _id: Livingroom  TV
+        device: TV
+        on: false
+        channel: 1
+ */
 
 }
