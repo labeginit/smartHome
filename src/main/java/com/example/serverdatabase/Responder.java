@@ -44,7 +44,7 @@ public class Responder implements WebMvcConfigurer {
 
         String deviceID = String.valueOf(userInput.get("_id")).replace("\"", "");
         Document dbResponse = DBConnector.findDevice(deviceID);
-        if (!dbResponse.isEmpty()) {
+        if (dbResponse != null) {
             String deviceToBeChanged = dbResponse.get("device").toString();
 
             if (deviceToBeChanged.equals("lamp")) {
