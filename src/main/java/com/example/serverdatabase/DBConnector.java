@@ -35,8 +35,8 @@ public class DBConnector {
             newDocument.put("temp", jsonObject.get("temp").toString().replace("\"", ""));
         if (deviceType.equals("curtain"))
             newDocument.put("open", jsonObject.get("open").toString().replace("\"", ""));
-        if (deviceType.equals("tv"))
-            newDocument.put("open", jsonObject.get("open").toString().replace("\"", ""));
+        if (deviceType.equals("TV"))
+            newDocument.put("on", jsonObject.get("on").toString().replace("\"", ""));
         BasicDBObject updateObject = new BasicDBObject();
         updateObject.put("$set", newDocument);
         collection.updateOne(query, updateObject);
