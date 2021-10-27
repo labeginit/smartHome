@@ -164,7 +164,7 @@ public class Responder implements WebMvcConfigurer {
         response.put("device", TV);
         response.put("option", newState);
         response.put("operation", "success");
-        System.out.println(newState + " from tvHandler");
+       
         return response;
     }
 /*
