@@ -26,7 +26,7 @@ And Websocket is used for keeping track of clients connected and to broadcast me
 
 ### _Usage_
 
-**getAllDeviceStatuses** - Is used for gathering all devices and their statuses, this is done via a **GET Request**.
+**getAllDeviceStatuses** - Is used for gathering all devices (NOT TV!) and their statuses, this is done via a **GET Request**.
 ```
 http://localhost:8080/getAllDeviceStatuses
 ``` 
@@ -116,7 +116,7 @@ An error message will come back in case of wrong device ID or no connection to t
 ```
 ### Broadcasting
 Once a user uses the Endpoint **/changeDeviceStatus**, a message will be broadcasted to each client.
-#### Curtain changed example
+#### TV changed state example
 ```json
 {"device":"TV", "operation":"success", "option":"true"}
 ```
