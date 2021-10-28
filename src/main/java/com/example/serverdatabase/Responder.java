@@ -60,8 +60,9 @@ public class Responder implements WebMvcConfigurer {
                 response = curtainHandler(dbResponse, deviceID, open, userInput);
             }
             if (deviceToBeChanged.equals(TV)) {
-                String on = String.valueOf(userInput.get("on")).replace("\"", "");
-                response = tvHandler(dbResponse, userInput);
+                if (userInput.has("on")) {
+                    response = tvHandler(dbResponse, userInput);
+                }
             }
         } /*else if (deviceID.equalsIgnoreCase(TV)) {  //to be removed
             boolean state = Boolean.parseBoolean(userInput.get("on").toString().replace("\"", ""));
@@ -164,7 +165,7 @@ public class Responder implements WebMvcConfigurer {
         response.put("device", TV);
         response.put("option", newState);
         response.put("operation", "success");
-       
+
         return response;
     }
 /*
