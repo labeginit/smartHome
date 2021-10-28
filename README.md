@@ -26,32 +26,53 @@ And Websocket is used for keeping track of clients connected and to broadcast me
 
 ### _Usage_
 
-**getAllDeviceStatuses** - Is used for gathering all devices (NOT TV!) and their statuses, this is done via a **GET Request**.
-```
-http://localhost:8080/getAllDeviceStatuses
-``` 
+**getDevices** - Is used for gathering all devices (NOT TV!) and their statuses, this is done via the **Websocket Connection**.
+
 #### Response
 ```json
 [
-    {"deviceID":"6165e106a44071e42cf2dc77",
-    "status":"on",
-    "name":"Kitchen Lamp"
-    },
-        {"deviceID":"6165e127a44071e42cf2dc78",
-        "status":"on",
-        "name":"Garage Lamp"
-        }
+   {
+      "deviceID":"Kitchen Lamp",
+      "on":false
+   },
+   {
+      "deviceID":"Bathroom Lamp",
+      "on":true
+   },
+   {
+      "temperature":19.1,
+      "deviceID":"Livingroom Thermometer"
+   },
+   {
+      "deviceID":"Livingroom Curtain",
+      "open":false
+   }
 ]
 ```
 
-**changeDeviceStatus** - Is utilized for changing the status of a device. A **POST Request** is requiered with specific parameters.
+**changeDeviceStatus** - Is utilized for changing the status of a device. 
+### Example of request
+```
+changeDeviceStatus={'_id':'Livingroom Curtain', 'open':'false'}
+```
+**Note!** In order for the server to corretly parse the request, the command and "=" is important. 
+This is because the server splits the request into an array of two. 
+The first index containing the **changeDeviceStatus** command. 
+The second index containg the payload **{'_id':'Livingroom Curtain', 'open':'false'}** in this case.
 
-### Format
-| deviceName | <type> | status | on/off
-| ------ | ------ | ------ | ------ |
-| Kitchen Lamp | String | status | on
+### Format for light
+| _id | on |
+| ------ | ------ |
+| Kitchen Lamp | false/true
+### Format for thermometer
+| _id | temperature |
+| ------ | ------ |
+| Livingroom Thermometer | 0-100°C 
+### Format for curtains
+| _id | open |
+| ------ | ------ |
+| Livingroom Curtain | false/true
 
-This will later be changed for instructing temperature changes, schedules for lamp etc.
 ### Example using Curl
 ```
 curl -X POST http://localhost:8080/changeDeviceStatus -H "Content-Type: application/json" -d "{\"deviceName\":\"Kitchen Lamp\",\"status\":\"off\"}"
@@ -70,6 +91,7 @@ The response comes in two alternatives, either if the request was successful or 
 ```
 ### Broadcasting
 Once a user uses the Endpoint **/changeDeviceStatus**, a message will be broadcasted to each client. 
+And if the request fails, then a broadcast message wont be sent out.
 #### Curtain changed example
 ```json
 {"device":"curtain", "operation":"success", "option":"true"}
