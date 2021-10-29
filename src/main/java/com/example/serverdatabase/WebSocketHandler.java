@@ -37,7 +37,6 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         } catch (ArrayIndexOutOfBoundsException ignored) {
 
         }
-        Responder responder = new Responder();
         switch (operation) {
             case ("getDevices"):
                 session.sendMessage(new TextMessage(getDeviceStatuses()));
@@ -45,8 +44,8 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             case ("changeDeviceStatus"):
                 changeDeviceStatus(jsonData);
                 session.sendMessage(new TextMessage(String.valueOf(changeDeviceStatus(jsonData))));
-            case ("getTV"):
-                session.sendMessage(new TextMessage(responder.getTvStatus()));
+            case ("getTVStatus"):
+                session.sendMessage(new TextMessage(getTvStatus()));
                 break;
             default:
                 System.out.println("Connected to Client");
@@ -97,13 +96,14 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             }
             if (deviceToBeChanged.equals(TV)) {
                 if (userInput.has("on")) {
-                    response = tvHandler(dbResponse, userInput);
+                    response = tvHandlerState(dbResponse, userInput);
+                } else if (userInput.has("channel")){
+                    String channel = String.valueOf(userInput.get("channel")).replace("\"", "");
+                    response = tvHandlerChannel(dbResponse, deviceID, channel, userInput);
                 }
+
             }
-        } /*else if (deviceID.equalsIgnoreCase(TV)) {  //to be removed
-            boolean state = Boolean.parseBoolean(userInput.get("on").toString().replace("\"", ""));
-            response = tvHandler(deviceID, state, userInput);
-        }*/
+        }
         if (!(response == null)) {
             if (response.get("operation").equals("success"))
                 WebSocketHandler.broadcastMessage(String.valueOf(response));
@@ -130,6 +130,24 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             if (deviceType.equals("curtain")) {
                 Curtain curtain = new Curtain(id, Boolean.parseBoolean(article.get("open").toString()));
                 responseMap.add(curtain);
+            }
+        }
+        Gson gson = new Gson();
+        return gson.toJson(responseMap);
+    }
+
+    public String getTvStatus() {
+        MongoCursor<Document> cursor = DBConnector.collection.find().iterator();
+        ArrayList<Object> responseMap = new ArrayList<>();
+        while (cursor.hasNext()) {
+            Document article = cursor.next();
+            if (article.get("device").equals(TV)) {
+                String id = article.getString("_id");
+                boolean state = Boolean.parseBoolean(article.get("on").toString());
+                int channel = Integer.parseInt(article.get("channel").toString());
+                responseMap.add(id);
+                responseMap.add(state);
+                responseMap.add(channel);
             }
         }
         Gson gson = new Gson();
@@ -187,7 +205,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         return null;
     }
 
-    private static HashMap<String, String> tvHandler(Document dbResponse, JsonObject jsonObject) {
+    private static HashMap<String, String> tvHandlerState(Document dbResponse, JsonObject jsonObject) {
         HashMap<String, String> response = new HashMap<>();
         String currentState = dbResponse.get("on").toString();
         String newState;
@@ -203,6 +221,20 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         response.put("option", newState);
         response.put("operation", "success");
 
+        return response;
+    }
+
+    private static HashMap<String, String> tvHandlerChannel(Document dbResponse, String deviceID, String channel, JsonObject jsonObject) {
+        HashMap<String, String> response = new HashMap<>();
+        if (!(dbResponse.get("channel").toString().equals(channel))) {
+            DBConnector.changeDeviceStatus(TV, jsonObject);
+            response.put("device", TV);
+            response.put("option", channel);
+            response.put("operation", "success");
+        } else {
+            response.put("operation", "failed");
+            response.put("reason", deviceID + " is already " + channel);
+        }
         return response;
     }
 }
