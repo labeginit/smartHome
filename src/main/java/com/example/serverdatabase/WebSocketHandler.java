@@ -79,8 +79,9 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
 
         String deviceID = String.valueOf(userInput.get("_id")).replace("\"", "");
         Document dbResponse = DBConnector.findDevice(deviceID);
+        String deviceToBeChanged = "";
         if (dbResponse != null) {
-            String deviceToBeChanged = dbResponse.get("device").toString();
+            deviceToBeChanged = dbResponse.get("device").toString();
 
             if (deviceToBeChanged.equals("lamp")) {
                 String on = String.valueOf(userInput.get("on")).replace("\"", "");
@@ -101,11 +102,11 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                     String channel = String.valueOf(userInput.get("channel")).replace("\"", "");
                     response = tvHandlerChannel(dbResponse, deviceID, channel, userInput);
                 }
-
+                WebSocketHandler.broadcastMessage(message);
             }
         }
         if (!(response == null)) {
-            if (response.get("operation").equals("success"))
+            if (!deviceToBeChanged.equalsIgnoreCase(TV) && response.get("operation").equals("success"))
                 WebSocketHandler.broadcastMessage(String.valueOf(response));
             return response;
         } else
