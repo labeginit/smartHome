@@ -42,7 +42,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 session.sendMessage(new TextMessage(getDeviceStatuses()));
                 break;
             case ("changeDeviceStatus"):
-               // changeDeviceStatus(jsonData);
+                // changeDeviceStatus(jsonData);
                 session.sendMessage(new TextMessage(String.valueOf(changeDeviceStatus(jsonData))));
                 break;
             case ("getTVStatus"):
@@ -99,7 +99,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             if (deviceToBeChanged.equals(TV)) {
                 if (userInput.has("on")) {
                     response = tvHandlerState(dbResponse, userInput);
-                } else if (userInput.has("channel")){
+                } else if (userInput.has("channel")) {
                     String channel = String.valueOf(userInput.get("channel")).replace("\"", "");
                     response = tvHandlerChannel(dbResponse, deviceID, channel, userInput);
                 }
@@ -162,6 +162,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             if (!(dbResponse.get("on").toString().equals(on))) {
                 DBConnector.changeDeviceStatus("lamp", jsonObject);
                 response.put("device", "lamp");
+                response.put("_id", deviceID);
                 response.put("option", on);
                 response.put("operation", "success");
             } else {
@@ -179,6 +180,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             if (!(dbResponse.get("temp").toString().equals(temp))) {
                 DBConnector.changeDeviceStatus("thermometer", jsonObject);
                 response.put("device", "thermometer");
+                response.put("_id", deviceID);
                 response.put("option", temp);
                 response.put("operation", "success");
             } else {
@@ -196,6 +198,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             if (!(dbResponse.get("open").toString().equals(String.valueOf(open)))) {
                 DBConnector.changeDeviceStatus("curtain", jsonObject);
                 response.put("device", "curtain");
+                response.put("_id", deviceID);
                 response.put("option", String.valueOf(open));
                 response.put("operation", "success");
             } else {
