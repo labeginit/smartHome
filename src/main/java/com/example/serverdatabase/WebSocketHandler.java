@@ -44,6 +44,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             case ("changeDeviceStatus"):
                // changeDeviceStatus(jsonData);
                 session.sendMessage(new TextMessage(String.valueOf(changeDeviceStatus(jsonData))));
+                break;
             case ("getTVStatus"):
                 session.sendMessage(new TextMessage(getTvStatus()));
                 break;
