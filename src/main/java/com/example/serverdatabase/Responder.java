@@ -1,26 +1,20 @@
 package com.example.serverdatabase;
 
 import com.example.serverdatabase.DeviceConnector.HttpHandler;
-import com.example.serverdatabase.DeviceTypes.Curtain;
-import com.example.serverdatabase.DeviceTypes.Lamp;
-import com.example.serverdatabase.DeviceTypes.Thermometer;
-import com.example.serverdatabase.Singleton;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.mongodb.client.MongoCursor;
-
-import javax.ws.rs.core.Response;
-
 import org.bson.Document;
 import org.json.JSONException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.UUID;
 
 @RestController
 public class Responder implements WebMvcConfigurer {
@@ -40,9 +34,11 @@ public class Responder implements WebMvcConfigurer {
         HashMap<String, String> response = new HashMap<>();
         String currentState = dbResponse.get("on").toString();
         String newState;
-        if (currentState.equalsIgnoreCase("false")){
+        if (currentState.equalsIgnoreCase("false")) {
             newState = "true";
-        } else {newState = "false";}
+        } else {
+            newState = "false";
+        }
         jsonObject.remove("on");
         jsonObject.addProperty("on", newState);  //we modify jsonObject in order to update the state of the device.
         DBConnector.changeDeviceStatus(TV, jsonObject);

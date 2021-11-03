@@ -35,6 +35,8 @@ public class DBConnector {
             newDocument.put("temp", jsonObject.get("temp").toString().replace("\"", ""));
         if (deviceType.equals("curtain"))
             newDocument.put("open", jsonObject.get("open").toString().replace("\"", ""));
+        if (deviceType.equals("fan"))
+            newDocument.put("speed", jsonObject.get("speed").toString().replace("\"", ""));
         if (deviceType.equals("TV")) {
             if (jsonObject.has("on")) {
                 newDocument.put("on", jsonObject.get("on").toString().replace("\"", ""));

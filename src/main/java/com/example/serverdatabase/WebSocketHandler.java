@@ -1,9 +1,7 @@
 package com.example.serverdatabase;
 
 import com.example.serverdatabase.DeviceConnector.HttpHandler;
-import com.example.serverdatabase.DeviceTypes.Curtain;
-import com.example.serverdatabase.DeviceTypes.Lamp;
-import com.example.serverdatabase.DeviceTypes.Thermometer;
+import com.example.serverdatabase.DeviceTypes.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -35,15 +33,13 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         try {
             jsonData = message.getPayload().split("=", message.getPayload().length())[1];
         } catch (ArrayIndexOutOfBoundsException ignored) {
-
         }
         switch (operation) {
             case ("getDevices"):
                 session.sendMessage(new TextMessage(getDeviceStatuses()));
                 break;
             case ("changeDeviceStatus"):
-               // changeDeviceStatus(jsonData);
-                session.sendMessage(new TextMessage(String.valueOf(changeDeviceStatus(jsonData))));
+                changeDeviceStatus(jsonData, session.getId());
                 break;
             case ("getTVStatus"):
                 session.sendMessage(new TextMessage(getTvStatus()));
@@ -73,8 +69,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         return false;
     }
 
-    public Object changeDeviceStatus(String message) {
-        System.out.println(message);
+    public void changeDeviceStatus(String message, String session) {
         JsonObject userInput = new JsonParser().parse(message).getAsJsonObject(); // User POST Request
         HashMap<String, String> response = new HashMap<>();
 
@@ -96,46 +91,55 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 boolean open = Boolean.parseBoolean(userInput.get("open").toString().replace("\"", ""));
                 response = curtainHandler(dbResponse, deviceID, open, userInput);
             }
+            if (deviceToBeChanged.equals("fan")) {
+                int speed = Integer.parseInt(userInput.get("speed").toString().replace("\"", ""));
+                response = fanHandler(dbResponse, deviceID, speed, userInput);
+            }
             if (deviceToBeChanged.equals(TV)) {
                 if (userInput.has("on")) {
                     response = tvHandlerState(dbResponse, userInput);
-                } else if (userInput.has("channel")){
+                } else if (userInput.has("channel")) {
                     String channel = String.valueOf(userInput.get("channel")).replace("\"", "");
                     response = tvHandlerChannel(dbResponse, deviceID, channel, userInput);
                 }
                 WebSocketHandler.broadcastMessage(message);
             }
         }
+        Gson gson = new Gson();
         if (!(response == null)) {
             if (!deviceToBeChanged.equalsIgnoreCase(TV) && response.get("operation").equals("success"))
-                WebSocketHandler.broadcastMessage(String.valueOf(response));
-            return response;
-        } else
-            return "An error has occurred, please try again";
+                WebSocketHandler.broadcastMessage("changeDeviceStatus=" + gson.toJson(response));
+        }
     }
 
     private static String getDeviceStatuses() {
         MongoCursor<Document> cursor = DBConnector.collection.find().iterator();
         ArrayList<Object> responseMap = new ArrayList<>();
+        SmartHouse smartHouse = SmartHouse.getInstance();
+        smartHouse.clear();
         while (cursor.hasNext()) {
             Document article = cursor.next();
             String deviceType = (String) article.get("device");
             String id = String.valueOf(article.get("_id"));
             if (deviceType.equals("lamp")) {
                 Lamp lamp = new Lamp(id, Boolean.parseBoolean(article.get("on").toString()));
-                responseMap.add(lamp);
+                smartHouse.addLamp(lamp);
             }
             if (deviceType.equals("thermometer")) {
                 Thermometer thermometer = new Thermometer(id, Double.parseDouble(article.get("temp").toString()));
-                responseMap.add(thermometer);
+                smartHouse.addTemperatureSensor(thermometer);
             }
             if (deviceType.equals("curtain")) {
                 Curtain curtain = new Curtain(id, Boolean.parseBoolean(article.get("open").toString()));
-                responseMap.add(curtain);
+                smartHouse.addCurtain(curtain);
+            }
+            if (deviceType.equals("fan")) {
+                Fan fan = new Fan(id, Integer.parseInt(article.get("speed").toString()));
+                smartHouse.addFan(fan);
             }
         }
         Gson gson = new Gson();
-        return gson.toJson(responseMap);
+        return "getDevices=" + gson.toJson(smartHouse);
     }
 
     public String getTvStatus() {
@@ -162,11 +166,30 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             if (!(dbResponse.get("on").toString().equals(on))) {
                 DBConnector.changeDeviceStatus("lamp", jsonObject);
                 response.put("device", "lamp");
+                response.put("_id", deviceID);
                 response.put("option", on);
                 response.put("operation", "success");
             } else {
                 response.put("operation", "failed");
                 response.put("reason", deviceID + " is already " + on);
+            }
+            return response;
+        }
+        return null;
+    }
+
+    private static HashMap<String, String> fanHandler(Document dbResponse, String deviceID, int speed, JsonObject jsonObject) {
+        if (dbResponse != null) {
+            HashMap<String, String> response = new HashMap<>();
+            if (!(dbResponse.get("speed").toString().equals(String.valueOf(speed)))) {
+                DBConnector.changeDeviceStatus("fan", jsonObject);
+                response.put("device", "fan");
+                response.put("_id", deviceID);
+                response.put("option", String.valueOf(speed));
+                response.put("operation", "success");
+            } else {
+                response.put("operation", "failed");
+                response.put("reason", deviceID + " is already " + speed);
             }
             return response;
         }
@@ -179,6 +202,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             if (!(dbResponse.get("temp").toString().equals(temp))) {
                 DBConnector.changeDeviceStatus("thermometer", jsonObject);
                 response.put("device", "thermometer");
+                response.put("_id", deviceID);
                 response.put("option", temp);
                 response.put("operation", "success");
             } else {
@@ -196,6 +220,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             if (!(dbResponse.get("open").toString().equals(String.valueOf(open)))) {
                 DBConnector.changeDeviceStatus("curtain", jsonObject);
                 response.put("device", "curtain");
+                response.put("_id", deviceID);
                 response.put("option", String.valueOf(open));
                 response.put("operation", "success");
             } else {
