@@ -73,7 +73,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         return false;
     }
 
-    private static Object changeDeviceStatus(String message) {
+    public Object changeDeviceStatus(String message) {
         System.out.println(message);
         JsonObject userInput = new JsonParser().parse(message).getAsJsonObject(); // User POST Request
         HashMap<String, String> response = new HashMap<>();
