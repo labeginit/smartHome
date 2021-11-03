@@ -13,12 +13,23 @@ class WebSocketHandlerTest {
         assert(!actual.isEmpty());
     }
     @Test
-    void changeTVStatusTst() {
+    void changeTVStatusTst1() {
         String before = socketHandler.getTvStatus();
         socketHandler.changeDeviceStatus("{\"_id\":\"Livingroom TV\",\"on\":\"true\"}");
         String after = socketHandler.getTvStatus();
 
-        assert(before != after);
+        assert(!before.equalsIgnoreCase(after));
+    }
+
+    @Test
+    void changeTVStatusTst2() {
+        String before = socketHandler.getTvStatus();
+        socketHandler.changeDeviceStatus("{\"_id\":\"Livingroom TV\",\"channel\":\"1\"}");
+        String after = socketHandler.getTvStatus();
+        if (after.equalsIgnoreCase(before))
+            socketHandler.changeDeviceStatus("{\"_id\":\"Livingroom TV\",\"channel\":\"10\"}");
+        after = socketHandler.getTvStatus();
+        assert(!before.equalsIgnoreCase(after));
     }
 
 }
