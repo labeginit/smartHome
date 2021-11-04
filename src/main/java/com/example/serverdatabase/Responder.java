@@ -5,7 +5,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mongodb.client.MongoCursor;
-
 import org.bson.Document;
 import org.json.JSONException;
 import org.springframework.web.bind.annotation.*;
@@ -150,7 +149,6 @@ public class Responder implements WebMvcConfigurer {
         }
         return "Something went wrong";
     }
-
 
     @PostMapping(value = "/sendConfirmation2", headers = "Accept=", produces = "application/json", consumes = "application/json")
     public Object confirmationFromDevice(@RequestBody String keyword) {
