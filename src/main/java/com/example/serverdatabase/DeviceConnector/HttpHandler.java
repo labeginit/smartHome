@@ -9,6 +9,7 @@ import java.net.http.HttpResponse;
 public class HttpHandler {
     //The baseAddress will be the device group address with their port number then
     private String baseAddress = "http://localhost:7070/";
+    //private String baseAddress = "http://194.47.28.185:7070/";
 
     //private WebTarget webTarget; //Will use it then
 
@@ -28,16 +29,12 @@ public class HttpHandler {
         // add json header
         java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
                 .POST(java.net.http.HttpRequest.BodyPublishers.ofString(message))
-                .uri(URI.create(baseAddress + "updateLamp"))
+                .uri(URI.create(baseAddress + "changeDeviceStatus"))
                 .setHeader("User-Agent", "Java 11 HttpClient Bot") // add request header
                 .header("Content-Type", "application/json")
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        System.out.println(response.statusCode()); //For debugging
-
-        // print response body
-        System.out.println(response.body()); //For debugging
 
         if (response.statusCode() == 200) {
             return "ok";
