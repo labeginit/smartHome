@@ -3,13 +3,11 @@ package com.example.serverdatabase;
 import com.example.serverdatabase.DeviceConnector.HttpHandler;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mongodb.client.MongoCursor;
 import org.bson.Document;
 import org.json.JSONException;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.io.IOException;
@@ -92,26 +90,92 @@ public class Responder implements WebMvcConfigurer {
         return response;
     }*/
 
+
+    public void changeDeviceStatus(String deviceId, String status, String deviceName) throws JSONException, IOException, InterruptedException {
+        httpHandler = new HttpHandler();
+        if (deviceName.equalsIgnoreCase("lamp")) {
+            httpHandler.changeLampStatus(deviceId, status);
+        } else if (deviceName.equalsIgnoreCase("fan")) {
+            //httpHandler.changeFanStatus()
+        } else if (deviceName.equalsIgnoreCase("thermometer")) {
+            //httpHandler.changeThermometerStatus()
+        } else if (deviceName.equalsIgnoreCase("curtain")) {
+            //httpHandler.changeCurtainStatus()
+        } else {
+            //Error massage
+        }
+    }
+
     //This End point for testing
-    @RequestMapping(value = "/changeStatus", method = RequestMethod.PUT, headers = "Accept=*/*", produces = "application/json", consumes = "application/json")
-    public String changeStatus() throws IOException, InterruptedException, JSONException {
+    @RequestMapping(value = "/changeStatus/", method = RequestMethod.PUT, headers = "Accept=*/*", produces = "application/json", consumes = "application/json")
+    public String changeStatus(String deviceId, String status) throws IOException, InterruptedException, JSONException {
         // We can change them from the input from the Unit group.
-        String deviceId = "1";
-        String status = "on";
+        deviceId = "1";
+        status = "on";
         httpHandler = new HttpHandler();
         httpHandler.changeLampStatus(deviceId, status);
         String re = httpHandler.changeLampStatus(deviceId, status);
         return re;
     }
 
-    public void changeLampStatus(String deviceId, String status) throws JSONException, IOException, InterruptedException {
+    //For testing
+    @RequestMapping(value = "/changeStatusToOff/", method = RequestMethod.PUT, headers = "Accept=*/*", produces = "application/json", consumes = "application/json")
+    public String changeStatusToOff(String deviceId, String status) throws IOException, InterruptedException, JSONException {
+        // We can change them from the input from the Unit group.
+        deviceId = "1";
+        status = "off";
         httpHandler = new HttpHandler();
-        String response = httpHandler.changeLampStatus(deviceId, status);
-        if (response.equalsIgnoreCase("ok")) {
-            //Update the status in the database
-        } else {
-            //send an error message to the Unit
+        httpHandler.changeLampStatus(deviceId, status);
+        String re = httpHandler.changeLampStatus(deviceId, status);
+        return re;
+    }
+
+    // For testing for now change device to On is working but not off after On, device group with check it.
+
+    @PostMapping(value = "/sendConfirmation1", headers = "Accept=", produces = "application/json", consumes = "application/json")
+    public Object postResponse(@RequestBody String keyword) {
+        JsonObject jsonObject = new JsonParser().parse(keyword).getAsJsonObject();
+        String deviceId = String.valueOf(jsonObject.get("deviceId")).replace("\"", "");
+        String status = String.valueOf(jsonObject.get("status")).replace("\"", "");
+
+        if (deviceId.equals("1") && status.equals("on")) {
+            System.out.println("lamp is on");
+            //We can send it to the DB updater
+            return "Lamp On";
+        } else if (deviceId.equals("1") && status.equals("off")) {
+            System.out.println("lamp is off");
+            //We can send it to the DB updater
+            return "Lamp Off";
+        }
+        return "Something went wrong";
+    }
+
+    @PostMapping(value = "/sendConfirmation2", headers = "Accept=", produces = "application/json", consumes = "application/json")
+    public Object confirmationFromDevice(@RequestBody String keyword) {
+        JsonObject jsonObject = new JsonParser().parse(keyword).getAsJsonObject();
+        String deviceName = String.valueOf(jsonObject.get("deviceName")).replace("\"", "");
+        String deviceId = String.valueOf(jsonObject.get("deviceId")).replace("\"", "");
+        String status = String.valueOf(jsonObject.get("status")).replace("\"", "");
+
+        if (deviceName.equalsIgnoreCase("lamp")) {
+            if (deviceId.equals("1") && status.equals("on")) {
+                System.out.println("lamp is on");
+                //We can send it to the DB updater
+                return "Lamp On";
+            } else if (deviceId.equals("1") && status.equals("off")) {
+                System.out.println("lamp is off");
+                //We can send it to the DB updater
+                return "Lamp Off";
+            }
+        } else if (deviceName.equalsIgnoreCase("fan")) {
+            if (deviceId.equals("") && status.equals("")) {
+
+            } else if (deviceId.equals("") && status.equals("")) {
+
+            }
         }
 
+        return "Something went wrong";
     }
+
 }
