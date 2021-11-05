@@ -12,7 +12,9 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.AbstractWebSocketHandler;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 public class WebSocketHandler extends AbstractWebSocketHandler {
@@ -26,7 +28,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
         if (!(checkIfExists(session.getId()))) {
             clients.add(session);
-            System.out.println(session.getId() + " Just connected!");
+            System.out.println(session.getId() + " " + getTime() + " Just connected!");
         }
         String operation = message.getPayload().split("=", message.getPayload().length())[0];
         String jsonData = "";
@@ -263,5 +265,10 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             response.put("reason", deviceID + " is already " + channel);
         }
         return response;
+    }
+
+    private String getTime(){
+        Date date=java.util.Calendar.getInstance().getTime();
+        return String.valueOf(date);
     }
 }
