@@ -18,9 +18,10 @@ public class HttpHandler {
             .build();
 
 
-    public String changeLampStatus(String deviceId, String status) throws IOException, InterruptedException, JSONException {
+    public String changeLampStatus(String deviceId, String status,String deviceType) throws IOException, InterruptedException, JSONException {
         String message;
         JSONObject json = new JSONObject();
+        json.put("deviceType",deviceType);
         json.put("deviceId",deviceId);
         json.put("status",status);
         message = json.toString();

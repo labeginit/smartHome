@@ -91,15 +91,15 @@ public class Responder implements WebMvcConfigurer {
     }*/
 
 
-    public void changeDeviceStatus(String deviceId, String status, String deviceName) throws JSONException, IOException, InterruptedException {
+    public void changeDeviceStatus(String deviceId, String status, String deviceType) throws JSONException, IOException, InterruptedException {
         httpHandler = new HttpHandler();
-        if (deviceName.equalsIgnoreCase("lamp")) {
-            httpHandler.changeLampStatus(deviceId, status);
-        } else if (deviceName.equalsIgnoreCase("fan")) {
+        if (deviceType.equalsIgnoreCase("lamp")) {
+            httpHandler.changeLampStatus(deviceId, status, deviceType);
+        } else if (deviceType.equalsIgnoreCase("fan")) {
             //httpHandler.changeFanStatus()
-        } else if (deviceName.equalsIgnoreCase("thermometer")) {
+        } else if (deviceType.equalsIgnoreCase("thermometer")) {
             //httpHandler.changeThermometerStatus()
-        } else if (deviceName.equalsIgnoreCase("curtain")) {
+        } else if (deviceType.equalsIgnoreCase("curtain")) {
             //httpHandler.changeCurtainStatus()
         } else {
             //Error massage
@@ -108,25 +108,25 @@ public class Responder implements WebMvcConfigurer {
 
     //This End point for testing
     @RequestMapping(value = "/changeStatus/", method = RequestMethod.PUT, headers = "Accept=*/*", produces = "application/json", consumes = "application/json")
-    public String changeStatus(String deviceId, String status) throws IOException, InterruptedException, JSONException {
+    public String changeStatus(String deviceId, String status, String deviceType) throws IOException, InterruptedException, JSONException {
         // We can change them from the input from the Unit group.
         deviceId = "1";
         status = "on";
         httpHandler = new HttpHandler();
-        httpHandler.changeLampStatus(deviceId, status);
-        String re = httpHandler.changeLampStatus(deviceId, status);
+        httpHandler.changeLampStatus(deviceId, status, deviceType);
+        String re = httpHandler.changeLampStatus(deviceId, status, deviceType);
         return re;
     }
 
     //For testing
     @RequestMapping(value = "/changeStatusToOff/", method = RequestMethod.PUT, headers = "Accept=*/*", produces = "application/json", consumes = "application/json")
-    public String changeStatusToOff(String deviceId, String status) throws IOException, InterruptedException, JSONException {
+    public String changeStatusToOff(String deviceId, String status, String deviceType) throws IOException, InterruptedException, JSONException {
         // We can change them from the input from the Unit group.
         deviceId = "1";
         status = "off";
         httpHandler = new HttpHandler();
-        httpHandler.changeLampStatus(deviceId, status);
-        String re = httpHandler.changeLampStatus(deviceId, status);
+        httpHandler.changeLampStatus(deviceId, status, deviceType);
+        String re = httpHandler.changeLampStatus(deviceId, status, deviceType);
         return re;
     }
 
@@ -174,7 +174,6 @@ public class Responder implements WebMvcConfigurer {
 
             }
         }
-
         return "Something went wrong";
     }
 
