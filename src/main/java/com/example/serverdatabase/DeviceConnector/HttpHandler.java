@@ -1,6 +1,8 @@
 package com.example.serverdatabase.DeviceConnector;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -8,7 +10,7 @@ import java.net.http.HttpResponse;
 
 public class HttpHandler {
     //The baseAddress will be the device group address with their port number then
-    private String baseAddress = "http://localhost:7070/";
+    private String baseAddress = "http://194.47.40.176:7070/";
     //private String baseAddress = "http://194.47.28.185:7070/";
 
     //private WebTarget webTarget; //Will use it then
@@ -18,12 +20,12 @@ public class HttpHandler {
             .build();
 
 
-    public String changeLampStatus(String deviceId, String status,String deviceType) throws IOException, InterruptedException, JSONException {
+    public String changeLampStatus(String deviceId, String status, String deviceType) throws IOException, InterruptedException, JSONException {
         String message;
         JSONObject json = new JSONObject();
-        json.put("deviceType",deviceType);
-        json.put("deviceId",deviceId);
-        json.put("status",status);
+        json.put("deviceType", deviceType);
+        json.put("_id", deviceId);
+        json.put("on", status);
         message = json.toString();
 
 
@@ -47,8 +49,8 @@ public class HttpHandler {
     public String changeFanStatus(String speed, boolean isWarm) throws IOException, InterruptedException, JSONException {
         String message;
         JSONObject json = new JSONObject();
-        json.put("speed",speed);
-        json.put("isWarm",isWarm);
+        json.put("speed", speed);
+        json.put("isWarm", isWarm);
         message = json.toString();
 
 
