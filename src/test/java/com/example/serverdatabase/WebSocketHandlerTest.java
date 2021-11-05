@@ -25,12 +25,10 @@ class WebSocketHandlerTest {
     void changeTVStatusTst2() {
         String before = socketHandler.getTvStatus();
         socketHandler.changeDeviceStatus("{\"_id\":\"Livingroom TV\",\"channel\":\"1\"}", "testSession");
-        System.out.println(before);
         String after = socketHandler.getTvStatus();
         if (after.equalsIgnoreCase(before))
-            socketHandler.changeDeviceStatus("{\"_id\":\"Livingroom TV\",\"channel\":\"10\"}", "testSession");
+           socketHandler.changeDeviceStatus("{\"_id\":\"Livingroom TV\",\"channel\":\"10\"}", "testSession");
         after = socketHandler.getTvStatus();
-        System.out.println(after);
         assert(!before.equalsIgnoreCase(after));
     }
 

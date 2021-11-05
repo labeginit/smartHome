@@ -12,7 +12,9 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.AbstractWebSocketHandler;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 public class WebSocketHandler extends AbstractWebSocketHandler {
@@ -26,7 +28,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
         if (!(checkIfExists(session.getId()))) {
             clients.add(session);
-            System.out.println(session.getId() + " Just connected!");
+            System.out.println(session.getId() + " " + getTime() + " Just connected!");
         }
         String operation = message.getPayload().split("=", message.getPayload().length())[0];
         String jsonData = "";
@@ -49,7 +51,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         }
     }
 
-    public static void broadcastMessage(String test) {
+    private void broadcastMessage(String test) {
         for (WebSocketSession cl : clients) {
             try {
                 if (cl.isOpen())
@@ -60,7 +62,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         }
     }
 
-    private static boolean checkIfExists(String clientID) {
+    private boolean checkIfExists(String clientID) {
         for (WebSocketSession client : clients) {
             if (client.getId().equals(clientID)) {
                 return true;
@@ -102,17 +104,17 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                     String channel = String.valueOf(userInput.get("channel")).replace("\"", "");
                     response = tvHandlerChannel(dbResponse, deviceID, channel, userInput);
                 }
-                WebSocketHandler.broadcastMessage(message);
+                broadcastMessage(message);
             }
         }
         Gson gson = new Gson();
         if (!(response == null)) {
             if (!deviceToBeChanged.equalsIgnoreCase(TV) && response.get("operation").equals("success"))
-                WebSocketHandler.broadcastMessage("changeDeviceStatus=" + gson.toJson(response));
+                broadcastMessage("changeDeviceStatus=" + gson.toJson(response));
         }
     }
 
-    private static String getDeviceStatuses() {
+    private String getDeviceStatuses() {
         MongoCursor<Document> cursor = DBConnector.collection.find().iterator();
         ArrayList<Object> responseMap = new ArrayList<>();
         SmartHouse smartHouse = SmartHouse.getInstance();
@@ -142,7 +144,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         return "getDevices=" + gson.toJson(smartHouse);
     }
 
-    public String getTvStatus() {
+    public String getTvStatus() {  // do not change to private - used in tests
         MongoCursor<Document> cursor = DBConnector.collection.find().iterator();
         ArrayList<Object> responseMap = new ArrayList<>();
         while (cursor.hasNext()) {
@@ -160,7 +162,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         return gson.toJson(responseMap);
     }
 
-    private static HashMap<String, String> lampHandler(Document dbResponse, String deviceID, String on, JsonObject jsonObject) {
+    private HashMap<String, String> lampHandler(Document dbResponse, String deviceID, String on, JsonObject jsonObject) {
         if (dbResponse != null) {
             HashMap<String, String> response = new HashMap<>();
             if (!(dbResponse.get("on").toString().equals(on))) {
@@ -178,7 +180,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         return null;
     }
 
-    private static HashMap<String, String> fanHandler(Document dbResponse, String deviceID, int speed, JsonObject jsonObject) {
+    private HashMap<String, String> fanHandler(Document dbResponse, String deviceID, int speed, JsonObject jsonObject) {
         if (dbResponse != null) {
             HashMap<String, String> response = new HashMap<>();
             if (!(dbResponse.get("speed").toString().equals(String.valueOf(speed)))) {
@@ -196,7 +198,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         return null;
     }
 
-    private static HashMap<String, String> thermometerHandler(Document dbResponse, String deviceID, String temp, JsonObject jsonObject) {
+    private HashMap<String, String> thermometerHandler(Document dbResponse, String deviceID, String temp, JsonObject jsonObject) {
         if (dbResponse != null) {
             HashMap<String, String> response = new HashMap<>();
             if (!(dbResponse.get("temp").toString().equals(temp))) {
@@ -214,7 +216,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         return null;
     }
 
-    private static HashMap<String, String> curtainHandler(Document dbResponse, String deviceID, boolean open, JsonObject jsonObject) {
+    private HashMap<String, String> curtainHandler(Document dbResponse, String deviceID, boolean open, JsonObject jsonObject) {
         if (dbResponse != null) {
             HashMap<String, String> response = new HashMap<>();
             if (!(dbResponse.get("open").toString().equals(String.valueOf(open)))) {
@@ -232,7 +234,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         return null;
     }
 
-    private static HashMap<String, String> tvHandlerState(Document dbResponse, JsonObject jsonObject) {
+    private HashMap<String, String> tvHandlerState(Document dbResponse, JsonObject jsonObject) {
         HashMap<String, String> response = new HashMap<>();
         String currentState = dbResponse.get("on").toString();
         String newState;
@@ -251,7 +253,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         return response;
     }
 
-    private static HashMap<String, String> tvHandlerChannel(Document dbResponse, String deviceID, String channel, JsonObject jsonObject) {
+    private HashMap<String, String> tvHandlerChannel(Document dbResponse, String deviceID, String channel, JsonObject jsonObject) {
         HashMap<String, String> response = new HashMap<>();
         if (!(dbResponse.get("channel").toString().equals(channel))) {
             DBConnector.changeDeviceStatus(TV, jsonObject);
@@ -263,5 +265,10 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             response.put("reason", deviceID + " is already " + channel);
         }
         return response;
+    }
+
+    private String getTime(){
+        Date date=java.util.Calendar.getInstance().getTime();
+        return String.valueOf(date);
     }
 }
