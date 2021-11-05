@@ -6,7 +6,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mongodb.client.MongoCursor;
+import com.mongodb.util.JSON;
 import org.bson.Document;
+import org.json.JSONException;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.AbstractWebSocketHandler;
@@ -166,11 +168,16 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         if (dbResponse != null) {
             HashMap<String, String> response = new HashMap<>();
             if (!(dbResponse.get("on").toString().equals(on))) {
-                DBConnector.changeDeviceStatus("lamp", jsonObject);
                 response.put("device", "lamp");
                 response.put("_id", deviceID);
                 response.put("option", on);
                 response.put("operation", "success");
+                Responder responder = new Responder();
+                try {
+                    responder.changeDeviceStatus(deviceID, on, "lamp");
+                } catch (JSONException | IOException | InterruptedException e) {
+                    e.printStackTrace();
+                }
             } else {
                 response.put("operation", "failed");
                 response.put("reason", deviceID + " is already " + on);
@@ -267,8 +274,8 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         return response;
     }
 
-    private String getTime(){
-        Date date=java.util.Calendar.getInstance().getTime();
+    private String getTime() {
+        Date date = java.util.Calendar.getInstance().getTime();
         return String.valueOf(date);
     }
 }

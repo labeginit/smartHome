@@ -25,6 +25,7 @@ public class DBConnector {
     }
 
     static void changeDeviceStatus(String deviceType, JsonObject jsonObject) {
+        System.out.println(jsonObject);
         BasicDBObject query = new BasicDBObject();
         BasicDBObject newDocument = new BasicDBObject();
         query.put("_id", jsonObject.get("_id").toString().replace("\"", ""));

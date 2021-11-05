@@ -153,21 +153,21 @@ public class Responder implements WebMvcConfigurer {
     @PostMapping(value = "/sendConfirmation2", headers = "Accept=", produces = "application/json", consumes = "application/json")
     public Object confirmationFromDevice(@RequestBody String keyword) {
         JsonObject jsonObject = new JsonParser().parse(keyword).getAsJsonObject();
-        String deviceName = String.valueOf(jsonObject.get("deviceName")).replace("\"", "");
-        String deviceId = String.valueOf(jsonObject.get("deviceId")).replace("\"", "");
-        String status = String.valueOf(jsonObject.get("status")).replace("\"", "");
+        String deviceType = String.valueOf(jsonObject.get("deviceType")).replace("\"", "");
+        String deviceId = String.valueOf(jsonObject.get("_id")).replace("\"", "");
+        String status = String.valueOf(jsonObject.get("on")).replace("\"", "");
 
-        if (deviceName.equalsIgnoreCase("lamp")) {
-            if (deviceId.equals("1") && status.equals("on")) {
+        if (deviceType.equalsIgnoreCase("lamp")) {
+            if (deviceId.equals("Outdoor lamp") && status.equals("true")) {
                 System.out.println("lamp is on");
-                //We can send it to the DB updater
+                DBConnector.changeDeviceStatus("lamp", jsonObject);
                 return "Lamp On";
-            } else if (deviceId.equals("1") && status.equals("off")) {
+            } else if (deviceId.equals("Outdoor lamp") && status.equals("false")) {
                 System.out.println("lamp is off");
-                //We can send it to the DB updater
+                DBConnector.changeDeviceStatus("lamp", jsonObject);
                 return "Lamp Off";
             }
-        } else if (deviceName.equalsIgnoreCase("fan")) {
+        } else if (deviceType.equalsIgnoreCase("fan")) {
             if (deviceId.equals("") && status.equals("")) {
 
             } else if (deviceId.equals("") && status.equals("")) {
