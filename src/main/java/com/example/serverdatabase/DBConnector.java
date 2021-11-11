@@ -38,13 +38,7 @@ public class DBConnector {
             newDocument.put("open", jsonObject.get("open").toString().replace("\"", ""));
         if (deviceType.equals("fan"))
             newDocument.put("speed", jsonObject.get("speed").toString().replace("\"", ""));
-        if (deviceType.equals("TV")) {
-            if (jsonObject.has("on")) {
-                newDocument.put("on", jsonObject.get("on").toString().replace("\"", ""));
-            } else if (jsonObject.has("channel")){
-                newDocument.put("channel", jsonObject.get("channel").toString().replace("\"", ""));
-            }
-        }
+
         BasicDBObject updateObject = new BasicDBObject();
         updateObject.put("$set", newDocument);
         collection.updateOne(query, updateObject);
