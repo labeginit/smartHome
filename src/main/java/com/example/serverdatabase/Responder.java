@@ -35,6 +35,13 @@ public class Responder implements WebMvcConfigurer {
         }
     }
 
+
+
+
+
+
+
+
     //This End point for testing
     @RequestMapping(value = "/changeStatus/", method = RequestMethod.PUT, headers = "Accept=*/*", produces = "application/json", consumes = "application/json")
     public String changeStatus(String deviceId, String status, String deviceType) throws IOException, InterruptedException, JSONException {
