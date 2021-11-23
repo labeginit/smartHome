@@ -152,7 +152,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         return response;
     }
 
-    private String getDeviceStatuses() {
+    protected String getDeviceStatuses() {
         MongoCursor<Document> cursor = DBConnector.collection.find().iterator();
         ArrayList<Object> responseMap = new ArrayList<>();
         SmartHouse smartHouse = SmartHouse.getInstance();
