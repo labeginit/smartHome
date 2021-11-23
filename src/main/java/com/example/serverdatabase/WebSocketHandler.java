@@ -119,7 +119,6 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         if (deviceID.contains(TV)){
             broadcastMessage(message);
             response.put("message", message);
-            return response;
         } else {
             Document dbResponse = DBConnector.findDevice(deviceID);
             String deviceToBeChanged = "";
@@ -149,8 +148,8 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 if (response.get("operation").equals("success"))
                     broadcastMessage("changeDeviceStatus=" + gson.toJson(response));
             }
-            return response;
         }
+        return response;
     }
 
     private String getDeviceStatuses() {
