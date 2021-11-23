@@ -116,35 +116,37 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         HashMap<String, String> response = new HashMap<>();
 
         String deviceID = String.valueOf(userInput.get("_id")).replace("\"", "");
-        Document dbResponse = DBConnector.findDevice(deviceID);
-        String deviceToBeChanged = "";
-        if (dbResponse != null && !dbResponse.get("device").toString().equals("TV") ) {
-            deviceToBeChanged = dbResponse.get("device").toString();
-
-            if (deviceToBeChanged.equals("lamp")) {
-                String on = String.valueOf(userInput.get("on")).replace("\"", "");
-                response = lampHandler(dbResponse, deviceID, on, userInput);
-
-            }
-            if (deviceToBeChanged.equals("thermometer")) {
-                String temp = String.valueOf(userInput.get("temp")).replace("\"", "");
-                response = thermometerHandler(dbResponse, deviceID, temp, userInput);
-            }
-            if (deviceToBeChanged.equals("curtain")) {
-                boolean open = Boolean.parseBoolean(userInput.get("open").toString().replace("\"", ""));
-                response = curtainHandler(dbResponse, deviceID, open, userInput);
-            }
-            if (deviceToBeChanged.equals("fan")) {
-                int speed = Integer.parseInt(userInput.get("speed").toString().replace("\"", ""));
-                response = fanHandler(dbResponse, deviceID, speed, userInput);
-            }
-        } else if (deviceID.contains(TV)){
+        if (deviceID.contains(TV)){
             broadcastMessage(message);
-        }
-        Gson gson = new Gson();
-        if (response != null) {
-            if (!deviceID.contains(TV) && response.get("operation").equals("success"))
-                broadcastMessage("changeDeviceStatus=" + gson.toJson(response));
+        } else {
+            Document dbResponse = DBConnector.findDevice(deviceID);
+            String deviceToBeChanged = "";
+            if (dbResponse != null) {
+                deviceToBeChanged = dbResponse.get("device").toString();
+
+                if (deviceToBeChanged.equals("lamp")) {
+                    String on = String.valueOf(userInput.get("on")).replace("\"", "");
+                    response = lampHandler(dbResponse, deviceID, on, userInput);
+
+                }
+                if (deviceToBeChanged.equals("thermometer")) {
+                    String temp = String.valueOf(userInput.get("temp")).replace("\"", "");
+                    response = thermometerHandler(dbResponse, deviceID, temp, userInput);
+                }
+                if (deviceToBeChanged.equals("curtain")) {
+                    boolean open = Boolean.parseBoolean(userInput.get("open").toString().replace("\"", ""));
+                    response = curtainHandler(dbResponse, deviceID, open, userInput);
+                }
+                if (deviceToBeChanged.equals("fan")) {
+                    int speed = Integer.parseInt(userInput.get("speed").toString().replace("\"", ""));
+                    response = fanHandler(dbResponse, deviceID, speed, userInput);
+                }
+            }
+            Gson gson = new Gson();
+            if (response != null) {
+                if (response.get("operation").equals("success"))
+                    broadcastMessage("changeDeviceStatus=" + gson.toJson(response));
+            }
         }
     }
 
