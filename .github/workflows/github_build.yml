@@ -28,6 +28,8 @@ jobs:
           settings-path: ${{ github.workspace }} # location for the settings.xml file
 
       - name: Build with Maven
+        env:
+          MONGO_TOKEN: ${{ secrets.MONGO_TOKEN }}
         run: mvn -B package --file pom.xml
 
       - name: Publish to GitHub Packages Apache Maven
