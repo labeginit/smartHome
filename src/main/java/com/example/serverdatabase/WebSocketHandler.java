@@ -110,7 +110,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
 
 
 
-    public void changeDeviceStatus(String message, String session){
+    public HashMap<String, String> changeDeviceStatus(String message, String session){
 
         JsonObject userInput = new JsonParser().parse(message).getAsJsonObject(); // User POST Request
         HashMap<String, String> response = new HashMap<>();
@@ -118,6 +118,8 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         String deviceID = String.valueOf(userInput.get("_id")).replace("\"", "");
         if (deviceID.contains(TV)){
             broadcastMessage(message);
+            response.put("message", message);
+            return response;
         } else {
             Document dbResponse = DBConnector.findDevice(deviceID);
             String deviceToBeChanged = "";
@@ -147,6 +149,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 if (response.get("operation").equals("success"))
                     broadcastMessage("changeDeviceStatus=" + gson.toJson(response));
             }
+            return response;
         }
     }
 
