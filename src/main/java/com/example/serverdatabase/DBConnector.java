@@ -15,7 +15,7 @@ import org.springframework.http.converter.json.GsonBuilderUtils;
 import java.util.Map;
 
 public class DBConnector {
-    public static final String dbURI = System.getenv("MONGO_TOKEN");
+    public static String dbURI = System.getenv("MONGO_TOKEN");
     public static final MongoClient mongoClient = new MongoClient(new MongoClientURI(dbURI));
     public static final MongoDatabase database = mongoClient.getDatabase("SEGFour");
     public static final MongoCollection<Document> collection = database.getCollection("Devices");
@@ -27,7 +27,7 @@ public class DBConnector {
     }
 
     static void changeDeviceStatus(String deviceType, JsonObject jsonObject) {
-        System.out.println(dbURI);
+        dbURI = "";
         System.out.println(jsonObject);
         BasicDBObject query = new BasicDBObject();
         BasicDBObject newDocument = new BasicDBObject();
