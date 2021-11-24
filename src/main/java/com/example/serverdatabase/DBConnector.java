@@ -27,17 +27,8 @@ public class DBConnector {
         BasicDBObject query = new BasicDBObject();
         BasicDBObject newDocument = new BasicDBObject();
         query.put("_id", jsonObject.get("_id").toString().replace("\"", ""));
-/*
-        if (deviceType.equals("lamp"))
-            newDocument.put("status", jsonObject.get("status").toString().replace("\"", ""));
-        if (deviceType.equals("thermometer"))
-            newDocument.put("status", jsonObject.get("status").toString().replace("\"", ""));
-        if (deviceType.equals("curtain"))
-            newDocument.put("status", jsonObject.get("status").toString().replace("\"", ""));
-        if (deviceType.equals("fan"))
-            newDocument.put("status", jsonObject.get("status").toString().replace("\"", ""));
-        */
-        if (deviceType.equals("lamp") || deviceType.equals("thermometer") || deviceType.equals("fan") || deviceType.equals("curtain")){
+
+        if (deviceType.equals("lamp") || deviceType.equals("thermometer") || deviceType.equals("fan") || deviceType.equals("curtain") || deviceType.equals("alarm")){
             newDocument.put("status", jsonObject.get("status").toString().replace("\"", ""));
         }
 

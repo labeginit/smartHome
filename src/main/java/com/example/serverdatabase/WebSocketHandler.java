@@ -26,7 +26,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
     private HttpHandler httpHandler;
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException, JSONException {
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
         if (!(checkIfExists(session.getId()))) {
             clients.add(session);
             System.out.println(session.getId() + " " + getTime() + " Just connected!");
@@ -138,6 +138,9 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 if (deviceToBeChanged.equals("fan")) {
                     response = fanHandler(dbResponse, deviceID, Integer.parseInt(status), userInput);
                 }
+                if (deviceToBeChanged.equals("alarm")) {
+                    response = alarmHandler(dbResponse, deviceID, Boolean.parseBoolean(status), userInput);
+                }
             }
             Gson gson = new Gson();
             if (response != null) {
@@ -172,6 +175,10 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             if (deviceType.equals("fan")) {
                 Fan fan = new Fan(id, Integer.parseInt(article.get("status").toString()));
                 smartHouse.addFan(fan);
+            }
+            if (deviceType.equals("alarm")) {
+                Alarm alarm = new Alarm(id, Boolean.parseBoolean(article.get("status").toString()));
+                smartHouse.addAlarm(alarm);
             }
         }
         Gson gson = new Gson();
@@ -250,6 +257,23 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             } else {
                 response.put("operation", "failed");
                 response.put("reason", deviceID + " is already " + open);
+            }
+            return response;
+        }
+        return null;
+    }
+
+    private HashMap<String, String> alarmHandler(Document dbResponse, String deviceID, boolean status, JsonObject jsonObject) {
+        if (dbResponse != null) {
+            HashMap<String, String> response = new HashMap<>();
+            if (!(dbResponse.get("status").toString().equals(String.valueOf(status)))) {
+                response.put("device", "alarm");
+                response.put("_id", deviceID);
+                response.put("option", String.valueOf(status));
+                response.put("operation", "success");
+            } else {
+                response.put("operation", "failed");
+                response.put("reason", deviceID + " is already " + status);
             }
             return response;
         }
