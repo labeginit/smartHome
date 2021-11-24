@@ -85,7 +85,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
 
         String deviceToChange = "lamp";
         String deviceId = String.valueOf(userInput.get("_id")).replace("\"", "");
-        String status = String.valueOf(userInput.get("on")).replace("\"", "");
+        String status = String.valueOf(userInput.get("status")).replace("\"", "");
         Document dbResponse = DBConnector.findDevice(deviceId);
 
         String deviceToBeChanged = "";
@@ -125,23 +125,18 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             String deviceToBeChanged = "";
             if (dbResponse != null) {
                 deviceToBeChanged = dbResponse.get("device").toString();
-
+                String status = String.valueOf(userInput.get("status")).replace("\"", "");
                 if (deviceToBeChanged.equals("lamp")) {
-                    String on = String.valueOf(userInput.get("on")).replace("\"", "");
-                    response = lampHandler(dbResponse, deviceID, on, userInput);
-
+                    response = lampHandler(dbResponse, deviceID, status, userInput);
                 }
                 if (deviceToBeChanged.equals("thermometer")) {
-                    String temp = String.valueOf(userInput.get("temp")).replace("\"", "");
-                    response = thermometerHandler(dbResponse, deviceID, temp, userInput);
+                    response = thermometerHandler(dbResponse, deviceID, status, userInput);
                 }
                 if (deviceToBeChanged.equals("curtain")) {
-                    boolean open = Boolean.parseBoolean(userInput.get("open").toString().replace("\"", ""));
-                    response = curtainHandler(dbResponse, deviceID, open, userInput);
+                    response = curtainHandler(dbResponse, deviceID, Boolean.parseBoolean(status), userInput);
                 }
                 if (deviceToBeChanged.equals("fan")) {
-                    int speed = Integer.parseInt(userInput.get("speed").toString().replace("\"", ""));
-                    response = fanHandler(dbResponse, deviceID, speed, userInput);
+                    response = fanHandler(dbResponse, deviceID, Integer.parseInt(status), userInput);
                 }
             }
             Gson gson = new Gson();
@@ -163,19 +158,19 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             String deviceType = (String) article.get("device");
             String id = String.valueOf(article.get("_id"));
             if (deviceType.equals("lamp")) {
-                Lamp lamp = new Lamp(id, Boolean.parseBoolean(article.get("on").toString()));
+                Lamp lamp = new Lamp(id, Boolean.parseBoolean(article.get("status").toString()));
                 smartHouse.addLamp(lamp);
             }
             if (deviceType.equals("thermometer")) {
-                Thermometer thermometer = new Thermometer(id, Double.parseDouble(article.get("temp").toString()));
+                Thermometer thermometer = new Thermometer(id, Double.parseDouble(article.get("status").toString()));
                 smartHouse.addTemperatureSensor(thermometer);
             }
             if (deviceType.equals("curtain")) {
-                Curtain curtain = new Curtain(id, Boolean.parseBoolean(article.get("open").toString()));
+                Curtain curtain = new Curtain(id, Boolean.parseBoolean(article.get("status").toString()));
                 smartHouse.addCurtain(curtain);
             }
             if (deviceType.equals("fan")) {
-                Fan fan = new Fan(id, Integer.parseInt(article.get("speed").toString()));
+                Fan fan = new Fan(id, Integer.parseInt(article.get("status").toString()));
                 smartHouse.addFan(fan);
             }
         }
@@ -186,7 +181,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
     private HashMap<String, String> lampHandler(Document dbResponse, String deviceID, String on, JsonObject jsonObject) {
         if (dbResponse != null) {
             HashMap<String, String> response = new HashMap<>();
-            if (!(dbResponse.get("on").toString().equals(on))) {
+            if (!(dbResponse.get("status").toString().equals(on))) {
                 response.put("device", "lamp");
                 response.put("_id", deviceID);
                 response.put("option", on);
@@ -210,7 +205,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
     private HashMap<String, String> fanHandler(Document dbResponse, String deviceID, int speed, JsonObject jsonObject) {
         if (dbResponse != null) {
             HashMap<String, String> response = new HashMap<>();
-            if (!(dbResponse.get("speed").toString().equals(String.valueOf(speed)))) {
+            if (!(dbResponse.get("status").toString().equals(String.valueOf(speed)))) {
                 DBConnector.changeDeviceStatus("fan", jsonObject);
                 response.put("device", "fan");
                 response.put("_id", deviceID);
@@ -228,7 +223,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
     private HashMap<String, String> thermometerHandler(Document dbResponse, String deviceID, String temp, JsonObject jsonObject) {
         if (dbResponse != null) {
             HashMap<String, String> response = new HashMap<>();
-            if (!(dbResponse.get("temp").toString().equals(temp))) {
+            if (!(dbResponse.get("status").toString().equals(temp))) {
                 DBConnector.changeDeviceStatus("thermometer", jsonObject);
                 response.put("device", "thermometer");
                 response.put("_id", deviceID);
@@ -246,7 +241,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
     private HashMap<String, String> curtainHandler(Document dbResponse, String deviceID, boolean open, JsonObject jsonObject) {
         if (dbResponse != null) {
             HashMap<String, String> response = new HashMap<>();
-            if (!(dbResponse.get("open").toString().equals(String.valueOf(open)))) {
+            if (!(dbResponse.get("status").toString().equals(String.valueOf(open)))) {
                 DBConnector.changeDeviceStatus("curtain", jsonObject);
                 response.put("device", "curtain");
                 response.put("_id", deviceID);

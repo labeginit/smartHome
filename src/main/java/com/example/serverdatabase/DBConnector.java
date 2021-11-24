@@ -27,15 +27,19 @@ public class DBConnector {
         BasicDBObject query = new BasicDBObject();
         BasicDBObject newDocument = new BasicDBObject();
         query.put("_id", jsonObject.get("_id").toString().replace("\"", ""));
-
+/*
         if (deviceType.equals("lamp"))
-            newDocument.put("on", jsonObject.get("on").toString().replace("\"", ""));
+            newDocument.put("status", jsonObject.get("status").toString().replace("\"", ""));
         if (deviceType.equals("thermometer"))
-            newDocument.put("temp", jsonObject.get("temp").toString().replace("\"", ""));
+            newDocument.put("status", jsonObject.get("status").toString().replace("\"", ""));
         if (deviceType.equals("curtain"))
-            newDocument.put("open", jsonObject.get("open").toString().replace("\"", ""));
+            newDocument.put("status", jsonObject.get("status").toString().replace("\"", ""));
         if (deviceType.equals("fan"))
-            newDocument.put("speed", jsonObject.get("speed").toString().replace("\"", ""));
+            newDocument.put("status", jsonObject.get("status").toString().replace("\"", ""));
+        */
+        if (deviceType.equals("lamp") || deviceType.equals("thermometer") || deviceType.equals("fan") || deviceType.equals("curtain")){
+            newDocument.put("status", jsonObject.get("status").toString().replace("\"", ""));
+        }
 
         BasicDBObject updateObject = new BasicDBObject();
         updateObject.put("$set", newDocument);
