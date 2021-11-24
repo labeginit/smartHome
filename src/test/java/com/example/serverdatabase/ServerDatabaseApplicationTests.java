@@ -17,12 +17,12 @@ class ServerDatabaseApplicationTests {
     @Mock
     private WebSocketSession session;
 
-    @Test
+  /*  @Test
     void getDevices() {
         String actual = socketHandler.getDeviceStatuses();
         System.out.println(actual);
         assertThat(actual).isNotNull();
-    }
+    }*/
 
     @Test
     void changeTVStatus(){
@@ -30,7 +30,7 @@ class ServerDatabaseApplicationTests {
         HashMap response = socketHandler.changeDeviceStatus(message, session.getId());
         assertThat(response.get("message")).isEqualTo(message);
     }
-
+/*
     @Test
     void changeLampStatus(){
         HashMap onceChange = socketHandler.changeDeviceStatus("{'_id':'Outdoor lamp', 'status':'true'}", session.getId());
@@ -51,6 +51,6 @@ class ServerDatabaseApplicationTests {
         HashMap twiceChange = socketHandler.changeDeviceStatus("{'_id':'Livingroom Thermometer', 'status':'25'}", session.getId());
         System.out.println(socketHandler.getDeviceStatuses());
         assertThat(twiceChange).isNotEqualTo(onceChange);
-    }
+    }*/
 
 }
