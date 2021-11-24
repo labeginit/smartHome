@@ -2,27 +2,27 @@ package com.example.serverdatabase.DeviceTypes;
 
 public class Fan {
 
-    private String deviceID;
-    private int speed;
+    private String _id;
+    private int status;
 
     public Fan(String deviceID, int speed) {
-        this.deviceID = deviceID;
-        this.speed = speed;
+        _id = deviceID;
+        status = speed;
     }
 
     public String getdeviceID() {
-        return deviceID;
+        return _id;
     }
 
     public int getSpeed() {
-        return speed;
+        return status;
     }
 
     public void setdeviceID(String deviceID) {
-        this.deviceID = deviceID;
+        _id = deviceID;
     }
 
     public void setSpeed(int speed) {
-        this.speed = speed;
+        status = speed;
     }
 }

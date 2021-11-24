@@ -2,19 +2,19 @@ package com.example.serverdatabase.DeviceTypes;
 
 public class Lamp {
 
-    String deviceID;
-    boolean on;
+    String _id;
+    boolean status;
 
     public Lamp(String deviceID, boolean on) {
-        this.deviceID = deviceID;
-        this.on = on;
+        _id = deviceID;
+        status = on;
     }
 
     @Override
     public String toString() {
         return "Lamp{" +
-                "deviceID='" + deviceID + '\'' +
-                ", on=" + on +
+                "_id='" + _id + '\'' +
+                ", status=" + status +
                 '}';
     }
 }

@@ -2,11 +2,11 @@ package com.example.serverdatabase.DeviceTypes;
 
 public class Curtain {
 
-    String deviceID;
-    boolean open;
+    String _id;
+    boolean status;
 
     public Curtain(String deviceID, boolean open) {
-        this.deviceID = deviceID;
-        this.open = open;
+        _id = deviceID;
+        status = open;
     }
 }
