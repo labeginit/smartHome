@@ -127,20 +127,47 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 deviceToBeChanged = dbResponse.get("device").toString();
                 String status = String.valueOf(userInput.get("status")).replace("\"", "");
                 if (deviceToBeChanged.equals("lamp")) {
-                    response = lampHandler(dbResponse, deviceID, status, userInput);
+                    try {
+                        response = lampHandler(dbResponse, deviceID, status, userInput);
+                    } catch (IllegalArgumentException exception){
+                        exception.getSuppressed();
+                        return error(response, deviceID);
+                    }
                 }
                 if (deviceToBeChanged.equals("thermometer")) {
-                    response = thermometerHandler(dbResponse, deviceID, status, userInput);
+                    try {
+                        response = thermometerHandler(dbResponse, deviceID, status, userInput);
+                    } catch (IllegalArgumentException exception){
+                        exception.getSuppressed();
+                        return error(response, deviceID);
+                    }
                 }
                 if (deviceToBeChanged.equals("curtain")) {
-                    response = curtainHandler(dbResponse, deviceID, Boolean.parseBoolean(status), userInput);
+                    try {
+                        response = curtainHandler(dbResponse, deviceID, Boolean.parseBoolean(status), userInput);
+                    } catch (IllegalArgumentException exception){
+                        exception.getSuppressed();
+                        return error(response, deviceID);
+                    }
                 }
                 if (deviceToBeChanged.equals("fan")) {
-                    response = fanHandler(dbResponse, deviceID, Integer.parseInt(status), userInput);
+                    try {
+                        response = fanHandler(dbResponse, deviceID, Integer.parseInt(status), userInput);
+                    } catch (IllegalArgumentException exception){
+                        exception.getSuppressed();
+                        return error(response, deviceID);
+                    }
                 }
                 if (deviceToBeChanged.equals("alarm")) {
-                    response = alarmHandler(dbResponse, deviceID, Boolean.parseBoolean(status), userInput);
+                    try {
+                        response = alarmHandler(dbResponse, deviceID, Boolean.parseBoolean(status), userInput);
+                    } catch (IllegalArgumentException exception){
+                        exception.getSuppressed();
+                        return error(response, deviceID);
+                    }
                 }
+            } else {
+                return error(response, deviceID);
             }
             Gson gson = new Gson();
             if (response != null) {
@@ -210,21 +237,27 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
     }
 
     private HashMap<String, String> fanHandler(Document dbResponse, String deviceID, int speed, JsonObject jsonObject) {
+        HashMap<String, String> response = new HashMap<>();
         if (dbResponse != null) {
-            HashMap<String, String> response = new HashMap<>();
-            if (!(dbResponse.get("status").toString().equals(String.valueOf(speed)))) {
-                DBConnector.changeDeviceStatus("fan", jsonObject);
-                response.put("device", "fan");
-                response.put("_id", deviceID);
-                response.put("option", String.valueOf(speed));
-                response.put("operation", "success");
+            if ((dbResponse.get("_id").toString().equals(String.valueOf(deviceID)))) {
+                if (!(dbResponse.get("status").toString().equals(String.valueOf(speed)))) {
+                    DBConnector.changeDeviceStatus("fan", jsonObject);
+                    response.put("device", "fan");
+                    response.put("_id", deviceID);
+                    response.put("option", String.valueOf(speed));
+                    response.put("operation", "success");
+                } else {
+                    response.put("operation", "failed");
+                    response.put("reason", deviceID + " is already " + speed);
+                }
+                return response;
             } else {
                 response.put("operation", "failed");
-                response.put("reason", deviceID + " is already " + speed);
+                response.put("reason", deviceID + " does not exist");
+                return response;
             }
-            return response;
         }
-        return null;
+        return response;
     }
 
     private HashMap<String, String> thermometerHandler(Document dbResponse, String deviceID, String temp, JsonObject jsonObject) {
@@ -283,5 +316,11 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
     private String getTime() {
         Date date = java.util.Calendar.getInstance().getTime();
         return String.valueOf(date);
+    }
+
+    private HashMap<String, String> error(HashMap<String, String> response, String deviceID){
+        response.put("operation", "failed");
+        response.put("reason", deviceID + " wrong value");
+        return response;
     }
 }
