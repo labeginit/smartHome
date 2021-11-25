@@ -48,9 +48,6 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             case ("changeDeviceStatus"):
                 changeDeviceStatus(jsonData, session.getId());
                 break;
-            case ("establishConnection"):
-                break;
-
             default:
                 System.out.println("Connected to Client");
         }
