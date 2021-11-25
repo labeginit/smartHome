@@ -15,9 +15,10 @@ public class DBConnector {
     public static final MongoClient mongoClient = new MongoClient(new MongoClientURI(System.getenv("MONGO_TOKEN")));
     public static final MongoDatabase database = mongoClient.getDatabase("SEGFour");
     public static final MongoCollection<Document> collection = database.getCollection("Devices");
+    private final static String ID = "_id";
 
     static Document findDevice(String deviceName) {
-        Bson filter = Filters.eq("_id", deviceName);
+        Bson filter = Filters.eq(ID, deviceName);
         FindIterable<Document> cursor = collection.find(filter);
         return cursor.first();
     }
@@ -26,9 +27,9 @@ public class DBConnector {
         System.out.println(jsonObject);
         BasicDBObject query = new BasicDBObject();
         BasicDBObject newDocument = new BasicDBObject();
-        query.put("_id", jsonObject.get("_id").toString().replace("\"", ""));
+        query.put(ID, jsonObject.get(ID).toString().replace("\"", ""));
 
-        if (deviceType.equals("lamp") || deviceType.equals("thermometer") || deviceType.equals("fan") || deviceType.equals("curtain") || deviceType.equals("alarm")){
+        if (deviceType.equals(DeviceType.LAMP.value) || deviceType.equals(DeviceType.THERMOMETER.value) || deviceType.equals(DeviceType.FAN.value) || deviceType.equals(DeviceType.CURTAIN.value) || deviceType.equals(DeviceType.ALARM.value)){
             newDocument.put("status", jsonObject.get("status").toString().replace("\"", ""));
         }
 
