@@ -3,9 +3,9 @@ package com.example.serverdatabase.DeviceTypes;
 public class Alarm {
 
     String _id;
-    boolean status;
+    int status;
 
-    public Alarm(String deviceID, boolean on) {
+    public Alarm(String deviceID, int on) {
         _id = deviceID;
         status = on;
     }

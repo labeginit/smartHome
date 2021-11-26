@@ -1,7 +1,6 @@
 package com.example.serverdatabase;
 
 import com.example.serverdatabase.DeviceConnector.CommunicatWithDevices;
-import com.example.serverdatabase.DeviceConnector.HttpHandler;
 import com.example.serverdatabase.DeviceTypes.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -213,7 +212,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 smartHouse.addFan(fan);
             }
             if (deviceType.equals(DeviceType.ALARM.value)) {
-                Alarm alarm = new Alarm(id, Boolean.parseBoolean(article.get(STATUS).toString()));
+                Alarm alarm = new Alarm(id, Integer.parseInt(article.get(STATUS).toString()));
                 smartHouse.addAlarm(alarm);
             }
         }
