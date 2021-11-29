@@ -47,6 +47,10 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             case ("changeDeviceStatus"):
                 changeDeviceStatus(jsonData, session.getId());
                 break;
+            case ("temperature"):
+                getTemp(jsonData);
+            case ("confirmation"):
+                getConfirmation(jsonData);
             default:
                 System.out.println("Connected to Client");
         }
@@ -353,4 +357,40 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         response.put("reason", deviceID + " contains wrong value");
         return response;
     }
+
+    public void getTemp(String message) {
+        JsonObject userInput = new JsonParser().parse(message).getAsJsonObject();
+        String status = String.valueOf(userInput.get("status")).replace("\"", "");
+        String device = String.valueOf(userInput.get("device")).replace("\"", "");
+        String deviceId = String.valueOf(userInput.get("_id")).replace("\"", "");
+
+        Gson gson = new Gson();
+        HashMap<String, String> response = new HashMap<>();
+
+        response.put("device", device);
+        response.put("_id", deviceId);
+        response.put("status", status);
+
+        //Units can use same channel to read the temperature status
+        //broadcastMessage("changeDeviceStatus=" + gson.toJson(response));
+
+        // Or they can use another operation name
+        broadcastMessage("temperature=" + gson.toJson(response));
+
+    }
+
+    public void getConfirmation (String message){
+        JsonObject userInput = new JsonParser().parse(message).getAsJsonObject();
+        String deviceType = String.valueOf(userInput.get("device")).replace("\"", "");
+        String result = String.valueOf(userInput.get("result")).replace("\"", "");
+
+        if (result.equalsIgnoreCase("success")){
+            DBConnector.changeDeviceStatus(deviceType, userInput);
+        }else {
+            //The device could not change
+            System.out.println("Something wnet");
+        }
+
+    }
+
 }

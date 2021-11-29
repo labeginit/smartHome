@@ -142,3 +142,30 @@ Once a user uses the Endpoint **/changeDeviceStatus**, a message will be broadca
 ```json
 {"device":"TV", "operation":"success", "option":"true"}
 ```
+
+
+## # Documentation for Device group
+
+### _Usage_
+
+**"confirmation"** - Is used for sending confirmations from devices to the server.
+
+```json
+"confirmation={'_id':'Outdoor lamp','device':'lamp','status':'true','result':'success'}"
+```
+
+
+**"temperature"** - Is used for sending temperature.
+
+Device send message in this form
+```json
+"temperature={'_id':'Livingroom Thermometer','device':'thermometer','status':'19'}"
+```
+
+
+**"changeDeviceStatus"** - Is used to get request messages for changing devices status.
+
+Once a user uses the Endpoint **/changeDeviceStatus**, a message will be broadcasts to device and the message will look like this:
+```json
+"changeDeviceStatus={'_id':'Outdoor lamp','device':'lamp','operation':'success',option:'true'}"
+```
