@@ -24,12 +24,15 @@ class ServerDatabaseApplicationTests {
         assertThat(actual).isNotNull();
     }*/
 
+    /*
     @Test
     void changeTVStatus(){
         String message = "{'_id':'Bedroom TV', 'status':'true'}";
         HashMap response = socketHandler.changeDeviceStatus(message, session.getId());
         assertThat(response.get("message")).isEqualTo(message);
     }
+
+     */
 /*
     @Test
     void changeLampStatus(){
