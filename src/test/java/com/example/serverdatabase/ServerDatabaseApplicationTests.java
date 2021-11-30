@@ -4,8 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.mockito.Mock;
-import org.springframework.web.socket.WebSocketSession;
 import static org.assertj.core.api.Java6Assertions.*;
 import java.util.HashMap;
 
@@ -13,9 +11,6 @@ import java.util.HashMap;
 @SpringBootTest
 class ServerDatabaseApplicationTests {
     WebSocketHandler socketHandler = new WebSocketHandler();
-
-    @Mock
-    private WebSocketSession session;
 
   /*  @Test
     void getDevices() {
