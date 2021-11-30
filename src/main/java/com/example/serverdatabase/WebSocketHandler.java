@@ -385,8 +385,10 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         JsonObject userInput = new JsonParser().parse(message).getAsJsonObject();
         String deviceType = String.valueOf(userInput.get("device")).replace("\"", "");
         String result = String.valueOf(userInput.get("result")).replace("\"", "");
-
+        System.out.println(result);
         if (result.equalsIgnoreCase("success")){
+            System.out.println("success");
+            System.out.println(userInput);
             DBConnector.changeDeviceStatus(deviceType, userInput);
             System.out.println(result);
         }else {
