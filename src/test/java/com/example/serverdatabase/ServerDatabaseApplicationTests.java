@@ -27,30 +27,30 @@ class ServerDatabaseApplicationTests {
     @Test
     void changeTVStatus(){
         String message = "{'_id':'Bedroom TV', 'status':'true'}";
-        HashMap response = socketHandler.changeDeviceStatus(message, session.getId());
+        HashMap response = socketHandler.changeDeviceStatus(message);
         assertThat(response.get("message")).isEqualTo(message);
     }
 /*
     @Test
     void changeLampStatus(){
-        HashMap onceChange = socketHandler.changeDeviceStatus("{'_id':'Outdoor lamp', 'status':'true'}", session.getId());
-        HashMap twiceChange = socketHandler.changeDeviceStatus("{'_id':'Outdoor lamp', 'status':'false'}", session.getId());
+        HashMap onceChange = socketHandler.changeDeviceStatus("{'_id':'Outdoor lamp', 'status':'true'}");
+        HashMap twiceChange = socketHandler.changeDeviceStatus("{'_id':'Outdoor lamp', 'status':'false'}");
         assertThat(twiceChange).isNotEqualTo(onceChange);
     }
 
     @Test
     void changeFanStatus(){
-        HashMap onceChange = socketHandler.changeDeviceStatus("{'_id':'Bedroom Fan', 'status':'0'}", session.getId());
-        HashMap twiceChange = socketHandler.changeDeviceStatus("{'_id':'Bedroom Fan', 'status':'3'}", session.getId());
+        HashMap onceChange = socketHandler.changeDeviceStatus("{'_id':'Bedroom Fan', 'status':'0'}");
+        HashMap twiceChange = socketHandler.changeDeviceStatus("{'_id':'Bedroom Fan', 'status':'3'}");
         assertThat(twiceChange).isNotEqualTo(onceChange);
     }
 
     @Test
     void changeThermoStatus(){
-        HashMap onceChange = socketHandler.changeDeviceStatus("{'_id':'Livingroom Thermometer', 'status':'20.4'}", session.getId());
-        HashMap twiceChange = socketHandler.changeDeviceStatus("{'_id':'Livingroom Thermometer', 'status':'25'}", session.getId());
+        HashMap onceChange = socketHandler.changeDeviceStatus("{'_id':'Livingroom Thermometer', 'status':'20.4'}");
+        HashMap twiceChange = socketHandler.changeDeviceStatus("{'_id':'Livingroom Thermometer', 'status':'25'}");
         System.out.println(socketHandler.getDeviceStatuses());
         assertThat(twiceChange).isNotEqualTo(onceChange);
-    }*/
-
+    }
+*/
 }
