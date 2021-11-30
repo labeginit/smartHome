@@ -93,7 +93,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                     try {
                         response = deviceHandler(dbResponse, deviceToBeChanged, deviceID, status, userInput);
                     } catch (IllegalArgumentException exception) {
-                        exception.getSuppressed();
+                        exception.printStackTrace();
                         return error(response, deviceID);
                     }
                 }
@@ -201,16 +201,15 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         String result = String.valueOf(userInput.get("result")).replace("\"", "");
         System.out.println(result);
         if (result.equalsIgnoreCase("success")) {
-            System.out.println("success");
-            System.out.println(userInput);
             DBConnector.changeDeviceStatus(deviceType, userInput);
             System.out.println(result);
-
-
         } else {
             //The device could not change
             System.out.println("Something went");
             System.out.println(result);
+
+      //      broadcastMessage("confirmation=" + userInput);   format of this broadcast to be agreed
+
         }
 
     }
