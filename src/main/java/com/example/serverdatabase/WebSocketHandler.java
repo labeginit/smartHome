@@ -49,8 +49,10 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 break;
             case ("temperature"):
                 getTemp(jsonData);
+                break;
             case ("confirmation"):
                 getConfirmation(jsonData);
+                break;
             default:
                 System.out.println("Connected to Client");
         }
@@ -383,8 +385,10 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         JsonObject userInput = new JsonParser().parse(message).getAsJsonObject();
         String deviceType = String.valueOf(userInput.get("device")).replace("\"", "");
         String result = String.valueOf(userInput.get("result")).replace("\"", "");
-
+        System.out.println(result);
         if (result.equalsIgnoreCase("success")){
+            System.out.println("success");
+            System.out.println(userInput);
             DBConnector.changeDeviceStatus(deviceType, userInput);
         }else {
             //The device could not change
