@@ -104,6 +104,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             if (response != null) {
                 if (response.get("operation").equals("success"))
                     broadcastMessage("changeDeviceStatus=" + gson.toJson(response));
+                broadcastMessage("changeDeviceStatus2Device=" + gson.toJson(response));
             }
             return response;
         }
@@ -134,8 +135,8 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 smartHouse.addFan(fan);
             }
             if (deviceType.equals(DeviceType.ALARM.value)) {
-                Alarm alarm = new Alarm(id, Integer.parseInt(article.get("status").toString()));
-                smartHouse.addAlarm(alarm);
+                //Alarm alarm = new Alarm(id, Integer.parseInt(article.get("status").toString()));
+                //smartHouse.addAlarm(alarm);
             }
         }
         Gson gson = new Gson();
@@ -199,19 +200,43 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         JsonObject userInput = new JsonParser().parse(message).getAsJsonObject();
         String deviceType = String.valueOf(userInput.get("device")).replace("\"", "");
         String result = String.valueOf(userInput.get("result")).replace("\"", "");
+        String deviceID = String.valueOf(userInput.get("_id")).replace("\"", "");
+        String status = String.valueOf(userInput.get("status")).replace("\"", "");
         System.out.println(result);
+
         if (result.equalsIgnoreCase("success")) {
-            DBConnector.changeDeviceStatus(deviceType, userInput);
-            System.out.println(result);
-        } else {
-            //The device could not change
-            System.out.println("Something went");
+
             System.out.println(result);
 
-      //      broadcastMessage("confirmation=" + userInput);   format of this broadcast to be agreed
+            HashMap<String, String> response = new HashMap<>();
+            Document dbResponse = DBConnector.findDevice(deviceID);
+            Gson gson = new Gson();
+
+
+            if (dbResponse != null) {
+                if ((dbResponse.get("_id").toString().equals(deviceID))) {
+                    if (!(dbResponse.get("status").toString().equals(status))) {
+                        DBConnector.changeDeviceStatus(deviceType, userInput);
+                        response.put("device", deviceType);
+                        response.put("_id", deviceID);
+                        response.put("option", status);
+                        response.put("operation", "success");
+                    } else {
+                        response.put("operation", "failed");
+                        response.put("reason", deviceID + " is already " + status);
+
+
+                    }
+                    broadcastMessage("changeDeviceStatus=" + gson.toJson(response));
+                }
+            } else {
+                //The device could not change
+                System.out.println("Something went");
+                System.out.println(result);
+
+            }
 
         }
 
     }
-
 }
