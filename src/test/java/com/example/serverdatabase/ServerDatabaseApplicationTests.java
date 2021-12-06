@@ -23,6 +23,7 @@ class ServerDatabaseApplicationTests {
 
     @Test
     void changeTVStatus(){
+        MONGO_TOKEN = System.getenv("MONGO_TOKEN");
         System.out.println(MONGO_TOKEN);
         String message = "{'_id':'Bedroom TV', 'status':'true'}";
         HashMap response = socketHandler.changeDeviceStatus(message);
@@ -33,6 +34,8 @@ class ServerDatabaseApplicationTests {
 
     @Test
     void changeLampStatus(){
+        MONGO_TOKEN = System.getenv("MONGO_TOKEN");
+        System.out.println(MONGO_TOKEN);
         HashMap onceChange = socketHandler.changeDeviceStatus("{'_id':'Outdoor lamp', 'status':'true'}");
         System.out.println(onceChange);
         HashMap twiceChange = socketHandler.changeDeviceStatus("{'_id':'Outdoor lamp', 'status':'false'}");
