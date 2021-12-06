@@ -11,6 +11,7 @@ import java.util.HashMap;
 @SpringBootTest
 class ServerDatabaseApplicationTests {
     WebSocketHandler socketHandler = new WebSocketHandler();
+    private static Object MONGO_TOKEN = System.getenv("MONGO_TOKEN");
 
   /*  @Test
     void getDevices() {
@@ -19,15 +20,16 @@ class ServerDatabaseApplicationTests {
         assertThat(actual).isNotNull();
     }*/
 
-    /*
+
     @Test
     void changeTVStatus(){
+        System.out.println(MONGO_TOKEN);
         String message = "{'_id':'Bedroom TV', 'status':'true'}";
         HashMap response = socketHandler.changeDeviceStatus(message);
         assertThat(response.get("message")).isEqualTo(message);
     }
 
-     */
+
 /*
     @Test
     void changeLampStatus(){
