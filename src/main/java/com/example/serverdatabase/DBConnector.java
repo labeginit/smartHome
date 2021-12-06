@@ -11,8 +11,10 @@ import com.mongodb.client.model.Filters;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+import java.util.Map;
+
 public class DBConnector {
-    public static final MongoClient mongoClient = new MongoClient(new MongoClientURI(System.getenv("MONGO_TOKEN")));
+    public static final MongoClient mongoClient = new MongoClient(new MongoClientURI(token()));
     public static final MongoDatabase database = mongoClient.getDatabase("SEGFour");
     public static final MongoCollection<Document> collection = database.getCollection("Devices");
     private final static String ID = "_id";
@@ -36,6 +38,11 @@ public class DBConnector {
         BasicDBObject updateObject = new BasicDBObject();
         updateObject.put("$set", newDocument);
         collection.updateOne(query, updateObject);
+    }
+
+    static String token(){
+        Map<String,String> env = System.getenv();
+        return env.get("MONGO_TOKEN");
     }
 
 }

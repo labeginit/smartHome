@@ -11,15 +11,16 @@ import java.util.HashMap;
 @SpringBootTest
 class ServerDatabaseApplicationTests {
     WebSocketHandler socketHandler = new WebSocketHandler();
-
-  /*  @Test
+/*
+    @Test
     void getDevices() {
+        System.out.println(System.getenv("MONGO_TOKEN"));
         String actual = socketHandler.getDeviceStatuses();
         System.out.println(actual);
         assertThat(actual).isNotNull();
     }*/
 
-    /*
+
     @Test
     void changeTVStatus(){
         String message = "{'_id':'Bedroom TV', 'status':'true'}";
@@ -27,10 +28,12 @@ class ServerDatabaseApplicationTests {
         assertThat(response.get("message")).isEqualTo(message);
     }
 
-     */
 /*
+
     @Test
     void changeLampStatus(){
+        MONGO_TOKEN = System.getenv("MONGO_TOKEN");
+        System.out.println(MONGO_TOKEN);
         HashMap onceChange = socketHandler.changeDeviceStatus("{'_id':'Outdoor lamp', 'status':'true'}");
         HashMap twiceChange = socketHandler.changeDeviceStatus("{'_id':'Outdoor lamp', 'status':'false'}");
         assertThat(twiceChange).isNotEqualTo(onceChange);
