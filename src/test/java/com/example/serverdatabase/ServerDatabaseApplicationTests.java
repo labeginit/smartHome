@@ -11,14 +11,14 @@ import java.util.HashMap;
 @SpringBootTest
 class ServerDatabaseApplicationTests {
     WebSocketHandler socketHandler = new WebSocketHandler();
-
+/*
     @Test
     void getDevices() {
         System.out.println(System.getenv("MONGO_TOKEN"));
         String actual = socketHandler.getDeviceStatuses();
         System.out.println(actual);
         assertThat(actual).isNotNull();
-    }
+    }*/
 
 
     @Test
