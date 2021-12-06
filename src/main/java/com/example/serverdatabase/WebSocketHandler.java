@@ -135,8 +135,8 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 smartHouse.addFan(fan);
             }
             if (deviceType.equals(DeviceType.ALARM.value)) {
-                //Alarm alarm = new Alarm(id, Integer.parseInt(article.get("status").toString()));
-                //smartHouse.addAlarm(alarm);
+                Alarm alarm = new Alarm(id, Integer.parseInt(article.get("status").toString()));
+                smartHouse.addAlarm(alarm);
             }
         }
         Gson gson = new Gson();
@@ -188,11 +188,8 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         response.put("_id", deviceId);
         response.put("status", status);
 
-        //Units can use same channel to read the temperature status
-        //broadcastMessage("changeDeviceStatus=" + gson.toJson(response));
-
-        // Or they can use another operation name
-        broadcastMessage("temperature=" + gson.toJson(response));
+        System.out.println("Temperature from device:" + userInput);
+        broadcastMessage("changeDeviceStatus=" + gson.toJson(response));
 
     }
 
@@ -206,8 +203,8 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
 
         if (result.equalsIgnoreCase("success")) {
 
-            System.out.println(result);
-
+            System.out.println("Result:" + result);
+            System.out.println("Confirmation from Devices:" + userInput);
             HashMap<String, String> response = new HashMap<>();
             Document dbResponse = DBConnector.findDevice(deviceID);
             Gson gson = new Gson();
@@ -233,7 +230,6 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 //The device could not change
                 System.out.println("Something went");
                 System.out.println(result);
-
             }
 
         }
