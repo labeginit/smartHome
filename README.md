@@ -1,10 +1,10 @@
-
 # Server & DB
+
 ## _Documentation_
 
 [![N|Solid](https://sts.hkr.se/adfs/portal/logo/logo.sv.png?id=EEF44783CA63147AE553003A4940C9CC9EB367CC3B5D0CD3AF6D260338D971B5)](https://nodesource.com/products/nsolid)
 
-Documentation of how to use the API. 
+Documentation of how to use the API.
 
 - What data is needed on a POST/GET request
 - How the JSON data shall be formatted
@@ -13,8 +13,8 @@ Documentation of how to use the API.
 
 ## Dependencies | Maven
 
-Three dependencies will be utilized. GSON is used for parsing JSON. MongoDB is used for connecting to the database. 
-And Websocket is used for keeping track of clients connected and to broadcast messages. 
+Three dependencies will be utilized. GSON is used for parsing JSON. MongoDB is used for connecting to the database. And
+Websocket is used for keeping track of clients connected and to broadcast messages.
 
 | Library | Version | Link |
 | ------ | ------ | ------ | 
@@ -26,123 +26,179 @@ And Websocket is used for keeping track of clients connected and to broadcast me
 
 ### _Usage_
 
-**getDevices** - Is used for gathering all devices (NOT TV!) and their statuses, this is done via the **Websocket Connection**.
+**getDevices** - Is used for gathering all devices (NOT TV!) and their statuses, this is done via the **Websocket
+Connection**.
 
 #### Response
+
 ```json
 [
-   {
-      "deviceID":"Kitchen Lamp",
-      "on":false
-   },
-   {
-      "deviceID":"Bathroom Lamp",
-      "on":true
-   },
-   {
-      "temperature":19.1,
-      "deviceID":"Livingroom Thermometer"
-   },
-   {
-      "deviceID":"Livingroom Curtain",
-      "open":false
-   }
+  {
+    "deviceID": "Kitchen Lamp",
+    "on": false
+  },
+  {
+    "deviceID": "Bathroom Lamp",
+    "on": true
+  },
+  {
+    "temperature": 19.1,
+    "deviceID": "Livingroom Thermometer"
+  },
+  {
+    "deviceID": "Livingroom Curtain",
+    "open": false
+  }
 ]
 ```
 
-**changeDeviceStatus** - Is utilized for changing the status of a device. 
+**changeDeviceStatus** - Is utilized for changing the status of a device.
+
 ### Example of request
+
 ```
 changeDeviceStatus={'_id':'Livingroom Curtain', 'open':'false'}
 ```
-**Note!** In order for the server to corretly parse the request, the command and "=" is important. 
-This is because the server splits the request into an array of two. 
-The first index containing the **changeDeviceStatus** command. 
-The second index containg the payload **{'_id':'Livingroom Curtain', 'open':'false'}** in this case.
+
+**Note!** In order for the server to corretly parse the request, the command and "=" is important. This is because the
+server splits the request into an array of two. The first index containing the **changeDeviceStatus** command. The
+second index containg the payload **{'_id':'Livingroom Curtain', 'open':'false'}** in this case.
 
 ### Format for light
+
 | _id | on |
 | ------ | ------ |
 | Kitchen Lamp | false/true
+
 ### Format for thermometer
+
 | _id | temperature |
 | ------ | ------ |
-| Livingroom Thermometer | 0-100°C 
+| Livingroom Thermometer | 0-100°C
+
 ### Format for curtains
+
 | _id | open |
 | ------ | ------ |
 | Livingroom Curtain | false/true
 
 ### Example using Curl
+
 ```
 curl -X POST http://localhost:8080/changeDeviceStatus -H "Content-Type: application/json" -d "{\"deviceName\":\"Kitchen Lamp\",\"status\":\"off\"}"
 ```
+
 ### Response
-The response comes in two alternatives, either if the request was successful or not. 
+
+The response comes in two alternatives, either if the request was successful or not.
 
 #### successful
+
 ```json
-{"operation":"success"}
+{
+  "operation": "success"
+}
 ```
 
 #### failed
+
 ```json
-{"reason":"Kitchen Lamp is already off","operation":"failed"}
+{
+  "reason": "Kitchen Lamp is already off",
+  "operation": "failed"
+}
 ```
+
 ### Broadcasting
-Once a user uses the Endpoint **/changeDeviceStatus**, a message will be broadcasted to each client. 
-And if the request fails, then a broadcast message wont be sent out.
+
+Once a user uses the Endpoint **/changeDeviceStatus**, a message will be broadcasted to each client. And if the request
+fails, then a broadcast message wont be sent out.
+
 #### Curtain changed example
+
 ```json
-{"device":"curtain", "operation":"success", "option":"true"}
+{
+  "device": "curtain",
+  "operation": "success",
+  "option": "true"
+}
 ```
+
 ## # Documentation for FreeChoice group
 
 ### _Usage_
 
 **getTVStatus** - Will present a list of Objects-properties of the TV via a **GET Request**.
+
 ```
 http://localhost:8080/getTVStatus
 ``` 
+
 #### Response
+
 ```json
-["Livingroom TV",true,1]
+[
+  "Livingroom TV",
+  true,
+  1
+]
 ```
 
-**changeDeviceStatus** - Is utilized for changing the status of a device. A **POST Request** is requiered with specific parameters.
+**changeDeviceStatus** - Is utilized for changing the status of a device. A **POST Request** is requiered with specific
+parameters.
 
 ### Format
+
 | deviceName | <type> | status | on/off
 | ------ | ------ | ------ | ------ |
 | Livingroom TV | String | on | true
 
 ***
-IMPORTANT: it does not matter what boolean value you are sending. It will invert the current state of the TV 
+IMPORTANT: it does not matter what boolean value you are sending. It will invert the current state of the TV
 ***
 
 Channel handling functionality comes soon...
+
 ### Example using Curl
+
 ```
 curl -X POST http://localhost:8080/changeDeviceStatus -H "Content-Type: application/json" -d "{\"_id\":\"Livingroom TV\",\"on\":\"true\"}" -s
 ```
+
 ### Response
-An error message will come back in case of wrong device ID or no connection to the database, otherwise it will always change and return latest the status
+
+An error message will come back in case of wrong device ID or no connection to the database, otherwise it will always
+change and return latest the status
+
 #### successful
+
 ```json
-{"operation":"success"}
+{
+  "operation": "success"
+}
 ```
 
 #### failed
+
 ```json
-{"reason":"An error has occurred, please try again"}
-```
-### Broadcasting
-Once a user uses the Endpoint **/changeDeviceStatus**, a message will be broadcasted to each client.
-#### TV changed state example
-```json
-{"device":"TV", "operation":"success", "option":"true"}
+{
+  "reason": "An error has occurred, please try again"
+}
 ```
 
+### Broadcasting
+
+Once a user uses the Endpoint **/changeDeviceStatus**, a message will be broadcasted to each client.
+
+#### TV changed state example
+
+```json
+{
+  "device": "TV",
+  "operation": "success",
+  "option": "true"
+}
+```
 
 ## # Documentation for Device group
 
@@ -154,18 +210,57 @@ Once a user uses the Endpoint **/changeDeviceStatus**, a message will be broadca
 "confirmation={'_id':'Outdoor lamp','device':'lamp','status':'true','result':'success'}"
 ```
 
-
 **"temperature"** - Is used for sending temperature.
 
 Device send message in this form
+
 ```json
-"temperature={'_id':'Livingroom Thermometer','device':'thermometer','status':'19'}"
+"temperature={'_id':'LivingRoom Thermometer','device':'thermometer','status':'19'}"
 ```
 
+**"changeDeviceStatus2Device"** - Is used to get request messages for changing devices status.
 
-**"changeDeviceStatus"** - Is used to get request messages for changing devices status.
+Once a user uses the Endpoint **/changeDeviceStatus**, a message will be broadcasts to device and the message will look
+like this:
 
-Once a user uses the Endpoint **/changeDeviceStatus**, a message will be broadcasts to device and the message will look like this:
 ```json
-"changeDeviceStatus={'_id':'Outdoor lamp','device':'lamp','operation':'success',option:'true'}"
+"changeDeviceStatus2Device={'_id':'Outdoor lamp','device':'lamp','operation':'success',option:'true'}"
 ```
+
+**getDevices** - Is used for gathering all devices and their statuses.
+
+#### Response
+
+```json
+[
+  {
+    "_id": "Outdoor lamp",
+    "status": false
+  },
+  {
+    "_id": "Indoor lamp",
+    "status": true
+  },
+  {
+    "_id": "Livingroom Thermometer",
+    "status": 19.1
+  },
+  {
+    "_id": "Bedroom Fan",
+    "status": false
+  },
+  {
+    "_id": "Alarm",
+    "status": "0"
+  }
+]
+```
+
+#### Data Format
+Fan speed has 3 speeds (1-2-3)
+
+Alarm has three statuses (0-off, 1-on, 2-door opened and signal starts)
+
+Lamps (true , false)
+
+Thermometer (double)
