@@ -14,7 +14,6 @@ import org.bson.conversions.Bson;
 import java.util.Map;
 
 public class DBConnector {
-    private static final Object MONGO_TOKEN = System.getenv("MONGO_TOKEN");
     public static final MongoClient mongoClient = new MongoClient(new MongoClientURI(token()));
     public static final MongoDatabase database = mongoClient.getDatabase("SEGFour");
     public static final MongoCollection<Document> collection = database.getCollection("Devices");
@@ -43,8 +42,7 @@ public class DBConnector {
 
     static String token(){
         Map<String,String> env = System.getenv();
-        return env.get(MONGO_TOKEN);
-
+        return env.get("MONGO_TOKEN");
     }
 
 }
