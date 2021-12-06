@@ -12,7 +12,8 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 public class DBConnector {
-    public static final MongoClient mongoClient = new MongoClient(new MongoClientURI(System.getenv("MONGO_TOKEN")));
+    private static Object MONGO_TOKEN = System.getenv("MONGO_TOKEN");
+    public static final MongoClient mongoClient = new MongoClient(new MongoClientURI(MONGO_TOKEN.toString()));
     public static final MongoDatabase database = mongoClient.getDatabase("SEGFour");
     public static final MongoCollection<Document> collection = database.getCollection("Devices");
     private final static String ID = "_id";

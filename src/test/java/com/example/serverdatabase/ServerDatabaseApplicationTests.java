@@ -30,14 +30,16 @@ class ServerDatabaseApplicationTests {
     }
 
 
-/*
+
     @Test
     void changeLampStatus(){
         HashMap onceChange = socketHandler.changeDeviceStatus("{'_id':'Outdoor lamp', 'status':'true'}");
+        System.out.println(onceChange);
         HashMap twiceChange = socketHandler.changeDeviceStatus("{'_id':'Outdoor lamp', 'status':'false'}");
+        System.out.println(twiceChange);
         assertThat(twiceChange).isNotEqualTo(onceChange);
     }
-
+/*
     @Test
     void changeFanStatus(){
         HashMap onceChange = socketHandler.changeDeviceStatus("{'_id':'Bedroom Fan', 'status':'0'}");
