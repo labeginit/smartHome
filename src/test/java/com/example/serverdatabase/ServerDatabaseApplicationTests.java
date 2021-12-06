@@ -23,8 +23,6 @@ class ServerDatabaseApplicationTests {
 
     @Test
     void changeTVStatus(){
-        MONGO_TOKEN = System.getenv("MONGO_TOKEN");
-        System.out.println(MONGO_TOKEN);
         String message = "{'_id':'Bedroom TV', 'status':'true'}";
         HashMap response = socketHandler.changeDeviceStatus(message);
         assertThat(response.get("message")).isEqualTo(message);
