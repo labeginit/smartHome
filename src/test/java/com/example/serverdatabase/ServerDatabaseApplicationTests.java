@@ -12,17 +12,17 @@ import java.util.HashMap;
 class ServerDatabaseApplicationTests {
     WebSocketHandler socketHandler = new WebSocketHandler();
 
-  /*  @Test
+    @Test
     void getDevices() {
+        System.out.println(System.getenv("MONGO_TOKEN"));
         String actual = socketHandler.getDeviceStatuses();
         System.out.println(actual);
         assertThat(actual).isNotNull();
-    }*/
+    }
 
 
     @Test
     void changeTVStatus(){
-        System.out.println(System.getenv("MONGO_TOKEN"));
         String message = "{'_id':'Bedroom TV', 'status':'true'}";
         HashMap response = socketHandler.changeDeviceStatus(message);
         assertThat(response.get("message")).isEqualTo(message);
