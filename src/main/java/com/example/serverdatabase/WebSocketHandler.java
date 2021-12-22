@@ -143,7 +143,8 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             if (deviceType.equals(DeviceType.ALARM.value)) {
                 Alarm alarm = new Alarm(id, Integer.parseInt(article.get("status").toString()));
                 smartHouse.addAlarm(alarm);
-            }if (deviceType.equals(DeviceType.HEATER.value)){
+            }
+            if (deviceType.equals(DeviceType.HEATER.value)){
                 Heater heater = new Heater(id, Boolean.parseBoolean(article.get("status").toString()));
                 smartHouse.addHeater(heater);
             }
