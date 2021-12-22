@@ -30,6 +30,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         try {
             jsonData = message.getPayload().split("=", message.getPayload().length())[1];
         } catch (ArrayIndexOutOfBoundsException ignored) {
+            System.out.println("ArrayIndexOutOfBoundsException");
         }
         System.out.println("here is the operation  " + operation);
         System.out.println("json data " + jsonData);
@@ -236,7 +237,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 }
             } else {
                 //The device could not change
-                System.out.println("Something went");
+                System.out.println("Something went wrong");
                 System.out.println(result);
             }
 

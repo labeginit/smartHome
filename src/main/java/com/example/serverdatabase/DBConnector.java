@@ -31,7 +31,7 @@ public class DBConnector {
         BasicDBObject newDocument = new BasicDBObject();
         query.put(ID, jsonObject.get(ID).toString().replace("\"", ""));
 
-        if (deviceType.equals(DeviceType.LAMP.value) || deviceType.equals(DeviceType.THERMOMETER.value) || deviceType.equals(DeviceType.FAN.value) || deviceType.equals(DeviceType.CURTAIN.value) || deviceType.equals(DeviceType.ALARM.value)){
+        if (deviceType.equals(DeviceType.LAMP.value) || deviceType.equals(DeviceType.THERMOMETER.value) || deviceType.equals(DeviceType.FAN.value) || deviceType.equals(DeviceType.CURTAIN.value) || deviceType.equals(DeviceType.ALARM.value) || deviceType.equals(DeviceType.HEATER.value)){
             newDocument.put("status", jsonObject.get("status").toString().replace("\"", ""));
         }
 
