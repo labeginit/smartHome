@@ -11,6 +11,7 @@ public class SmartHouse {
     ArrayList<Curtain> curtainList;
     ArrayList<Thermometer> temperatureSensorList;
     ArrayList<Alarm> alarmList;
+    ArrayList<Heater> heaterList;
 
     public void clear() {
         lampList.clear();
@@ -18,6 +19,7 @@ public class SmartHouse {
         curtainList.clear();
         temperatureSensorList.clear();
         alarmList.clear();
+        heaterList.clear();
     }
 
 
@@ -27,6 +29,7 @@ public class SmartHouse {
         curtainList = new ArrayList<>();
         temperatureSensorList = new ArrayList<>();
         alarmList = new ArrayList<>();
+        heaterList = new ArrayList<>();
     }
 
     public static SmartHouse getInstance() {
@@ -38,6 +41,10 @@ public class SmartHouse {
 
     public ArrayList<Lamp> getLampList() {
         return lampList;
+    }
+
+    public ArrayList<Heater> getHeaterList() {
+        return heaterList;
     }
 
     public ArrayList<Fan> getFanList() {
@@ -52,10 +59,17 @@ public class SmartHouse {
         return temperatureSensorList;
     }
 
-    public ArrayList<Alarm> getAlarmList(){ return alarmList; }
+    public ArrayList<Alarm> getAlarmList() {
+        return alarmList;
+    }
+
 
     public void addLamp(Lamp lamp) {
         this.lampList.add(lamp);
+    }
+
+    public void addHeater(Heater heater) {
+        this.heaterList.add(heater);
     }
 
     public void addFan(Fan fan) {
@@ -66,9 +80,13 @@ public class SmartHouse {
         this.curtainList.add(curtain);
     }
 
-    public void addTemperatureSensor(Thermometer temperatureSensor) { this.temperatureSensorList.add(temperatureSensor); }
+    public void addTemperatureSensor(Thermometer temperatureSensor) {
+        this.temperatureSensorList.add(temperatureSensor);
+    }
 
-    public void addAlarm(Alarm alarm){ this.alarmList.add(alarm); }
+    public void addAlarm(Alarm alarm) {
+        this.alarmList.add(alarm);
+    }
 
     @Override
     public String toString() {
@@ -78,6 +96,7 @@ public class SmartHouse {
                 ", curtainList=" + curtainList +
                 ", temperatureSensorList=" + temperatureSensorList +
                 ", alarmList=" + alarmList +
+                ", heaterList=" + heaterList.toString() +
                 '}';
     }
 }

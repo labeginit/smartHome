@@ -89,7 +89,12 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 deviceToBeChanged = dbResponse.get("device").toString();
                 String status = String.valueOf(userInput.get("status")).replace("\"", "");
 
-                if (deviceToBeChanged.equals(DeviceType.LAMP.value) || deviceToBeChanged.equals(DeviceType.THERMOMETER.value) || deviceToBeChanged.equals(DeviceType.CURTAIN.value) || deviceToBeChanged.equals(DeviceType.FAN.value) || deviceToBeChanged.equals(DeviceType.ALARM.value)) {
+                if (deviceToBeChanged.equals(DeviceType.LAMP.value) ||
+                        deviceToBeChanged.equals(DeviceType.THERMOMETER.value) ||
+                        deviceToBeChanged.equals(DeviceType.CURTAIN.value) ||
+                        deviceToBeChanged.equals(DeviceType.FAN.value) ||
+                        deviceToBeChanged.equals(DeviceType.ALARM.value) ||
+                        deviceToBeChanged.equals(DeviceType.HEATER.value)) {
                     try {
                         response = deviceHandler(dbResponse, deviceToBeChanged, deviceID, status, userInput);
                     } catch (IllegalArgumentException exception) {
@@ -137,6 +142,9 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             if (deviceType.equals(DeviceType.ALARM.value)) {
                 Alarm alarm = new Alarm(id, Integer.parseInt(article.get("status").toString()));
                 smartHouse.addAlarm(alarm);
+            }if (deviceType.equals(DeviceType.HEATER.value)){
+                Heater heater = new Heater(id, Boolean.parseBoolean(article.get("status").toString()));
+                smartHouse.addHeater(heater);
             }
         }
         Gson gson = new Gson();
