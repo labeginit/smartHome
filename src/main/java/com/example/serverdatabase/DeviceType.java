@@ -6,8 +6,7 @@ public enum DeviceType {
     FAN("fan"),
     LAMP("lamp"),
     THERMOMETER("thermometer"),
-    TV("TV"),
-    HEATER("heater");
+    TV("TV");
 
     public final String value;
 

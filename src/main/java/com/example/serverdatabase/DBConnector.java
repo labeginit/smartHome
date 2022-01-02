@@ -1,6 +1,7 @@
 package com.example.serverdatabase;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
@@ -31,7 +32,7 @@ public class DBConnector {
         BasicDBObject newDocument = new BasicDBObject();
         query.put(ID, jsonObject.get(ID).toString().replace("\"", ""));
 
-        if (deviceType.equals(DeviceType.LAMP.value) || deviceType.equals(DeviceType.THERMOMETER.value) || deviceType.equals(DeviceType.FAN.value) || deviceType.equals(DeviceType.CURTAIN.value) || deviceType.equals(DeviceType.ALARM.value) || deviceType.equals(DeviceType.HEATER.value)){
+        if (deviceType.equals(DeviceType.LAMP.value) || deviceType.equals(DeviceType.THERMOMETER.value) || deviceType.equals(DeviceType.FAN.value) || deviceType.equals(DeviceType.CURTAIN.value) || deviceType.equals(DeviceType.ALARM.value)) {
             newDocument.put("status", jsonObject.get("status").toString().replace("\"", ""));
         }
 
@@ -40,8 +41,28 @@ public class DBConnector {
         collection.updateOne(query, updateObject);
     }
 
-    static String token(){
-        Map<String,String> env = System.getenv();
+    static String insertNewDoc(String message) {
+        JsonObject userInput = new JsonParser().parse(message).getAsJsonObject();
+        String option = null;
+        Document doc = new Document("_id", userInput.get("_id").toString().replace("\"", ""))
+                .append("device", userInput.get("device").toString().replace("\"", ""));
+        if (userInput.get("device").toString().replace("\"", "").equals("lamp")) {
+            doc.append("status", "false");
+            option = "false";
+        } else if (userInput.get("device").toString().replace("\"", "").equals("alarm")) {
+            doc.append("status", "0");
+            option = "0";
+        }
+        collection.insertOne(doc);
+        return option;
+    }
+
+    static void removeDoc(String _id) {
+        collection.deleteOne(Filters.eq("_id", _id));
+    }
+
+    static String token() {
+        Map<String, String> env = System.getenv();
         return env.get("MONGO_TOKEN");
     }
 
