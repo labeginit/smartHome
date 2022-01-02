@@ -18,6 +18,13 @@ import java.util.HashMap;
 public class WebSocketHandler extends AbstractWebSocketHandler {
 
     private static final ArrayList<WebSocketSession> clients = new ArrayList<>();
+    private final static String ID = "_id";
+    private final static String STATUS = "status";
+    private final static String DEVICE = "device";
+    private final static String OPERATION = "operation";
+    private final static String SUCCESS = "success";
+    private final static String FAILED = "failed";
+    private final static String REASON = "reason";
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
@@ -31,7 +38,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             jsonData = message.getPayload().split("=", message.getPayload().length())[1];
         } catch (ArrayIndexOutOfBoundsException ignored) {
         }
-        System.out.println("here is the operation  " + operation);
+        System.out.println("here is the " + OPERATION + ": " + operation);
         System.out.println("json data " + jsonData);
 
         switch (operation) {
@@ -58,10 +65,10 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 Gson gson = new Gson();
                 HashMap<String, String> response = new HashMap<>();
                 JsonObject userInput = new JsonParser().parse(jsonData).getAsJsonObject();
-                response.put("_id", userInput.get("_id").toString().replace("\"", ""));
-                response.put("device", userInput.get("device").toString().replace("\"", ""));
-                response.put("operation", "success");
-                response.put("status", status);
+                response.put(ID, userInput.get(ID).toString().replace("\"", ""));
+                response.put(DEVICE, userInput.get(DEVICE).toString().replace("\"", ""));
+                response.put(OPERATION, SUCCESS);
+                response.put(STATUS, status);
                 broadcastMessage("addNewDevice=" + gson.toJson(response));
                 break;
             default:
@@ -91,10 +98,10 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
 
     public HashMap<String, String> changeDeviceStatus(String message) {
 
-        JsonObject userInput = new JsonParser().parse(message).getAsJsonObject(); // User POST Request
+        JsonObject userInput = new JsonParser().parse(message).getAsJsonObject();
         HashMap<String, String> response = new HashMap<>();
 
-        String deviceID = String.valueOf(userInput.get("_id")).replace("\"", "");
+        String deviceID = String.valueOf(userInput.get(ID)).replace("\"", "");
         if (deviceID.contains(DeviceType.TV.value)) {
             broadcastMessage(message);
             response.put("message", message);
@@ -103,8 +110,8 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             Document dbResponse = DBConnector.findDevice(deviceID);
             String deviceToBeChanged;
             if (dbResponse != null) {
-                deviceToBeChanged = dbResponse.get("device").toString();
-                String status = String.valueOf(userInput.get("status")).replace("\"", "");
+                deviceToBeChanged = dbResponse.get(DEVICE).toString();
+                String status = String.valueOf(userInput.get(STATUS)).replace("\"", "");
 
                 if (deviceToBeChanged.equals(DeviceType.LAMP.value) ||
                         deviceToBeChanged.equals(DeviceType.THERMOMETER.value) ||
@@ -124,7 +131,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             }
             Gson gson = new Gson();
             if (response != null) {
-                if (response.get("operation").equals("success"))
+                if (response.get(OPERATION).equals(SUCCESS))
                     broadcastMessage("changeDeviceStatus=" + gson.toJson(response));
                 broadcastMessage("changeDeviceStatus2Device=" + gson.toJson(response));
             }
@@ -138,30 +145,30 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         smartHouse.clear();
         while (cursor.hasNext()) {
             Document article = cursor.next();
-            String deviceType = (String) article.get("device");
-            String id = String.valueOf(article.get("_id"));
+            String deviceType = (String) article.get(DEVICE);
+            String id = String.valueOf(article.get(ID));
             if (deviceType.equals(DeviceType.LAMP.value)) {
-                Lamp lamp = new Lamp(id, Boolean.parseBoolean(article.get("status").toString()));
+                Lamp lamp = new Lamp(id, Boolean.parseBoolean(article.get(STATUS).toString()));
                 smartHouse.addLamp(lamp);
             }
             if (deviceType.equals(DeviceType.THERMOMETER.value)) {
-                Thermometer thermometer = new Thermometer(id, Double.parseDouble(article.get("status").toString()));
+                Thermometer thermometer = new Thermometer(id, Double.parseDouble(article.get(STATUS).toString()));
                 smartHouse.addTemperatureSensor(thermometer);
             }
             if (deviceType.equals(DeviceType.CURTAIN.value)) {
-                Curtain curtain = new Curtain(id, Boolean.parseBoolean(article.get("status").toString()));
+                Curtain curtain = new Curtain(id, Boolean.parseBoolean(article.get(STATUS).toString()));
                 smartHouse.addCurtain(curtain);
             }
             if (deviceType.equals(DeviceType.FAN.value)) {
-                Fan fan = new Fan(id, Integer.parseInt(article.get("status").toString()));
+                Fan fan = new Fan(id, Integer.parseInt(article.get(STATUS).toString()));
                 smartHouse.addFan(fan);
             }
             if (deviceType.equals(DeviceType.ALARM.value)) {
-                Alarm alarm = new Alarm(id, Integer.parseInt(article.get("status").toString()));
+                Alarm alarm = new Alarm(id, Integer.parseInt(article.get(STATUS).toString()));
                 smartHouse.addAlarm(alarm);
             }
             if (deviceType.equals(DeviceType.HEATER.value)) {
-                Heater heater = new Heater(id, Boolean.parseBoolean(article.get("status").toString()));
+                Heater heater = new Heater(id, Boolean.parseBoolean(article.get(STATUS).toString()));
                 smartHouse.addHeater(heater);
             }
         }
@@ -172,15 +179,15 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
     private HashMap<String, String> deviceHandler(Document dbResponse, String deviceType, String deviceID, Object status, JsonObject jsonObject) {
         HashMap<String, String> response = new HashMap<>();
         if (dbResponse != null) {
-            if ((dbResponse.get("_id").toString().equals(String.valueOf(deviceID)))) {
-                if (!(dbResponse.get("status").toString().equals(String.valueOf(status)))) {
-                    response.put("device", deviceType);
-                    response.put("_id", deviceID);
-                    response.put("status", String.valueOf(status));
-                    response.put("operation", "success");
+            if ((dbResponse.get(ID).toString().equals(String.valueOf(deviceID)))) {
+                if (!(dbResponse.get(STATUS).toString().equals(String.valueOf(status)))) {
+                    response.put(DEVICE, deviceType);
+                    response.put(ID, deviceID);
+                    response.put(STATUS, String.valueOf(status));
+                    response.put(OPERATION, SUCCESS);
                 } else {
-                    response.put("operation", "failed");
-                    response.put("reason", deviceID + " is already " + status);
+                    response.put(OPERATION, FAILED);
+                    response.put(REASON, deviceID + " is already " + status);
                 }
             } else {
                 response = error(response, deviceID);
@@ -199,23 +206,23 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
     }
 
     private HashMap<String, String> error(String reason, HashMap<String, String> response) {
-        response.put("operation", "failed");
-        response.put("reason", reason);
+        response.put(OPERATION, FAILED);
+        response.put(REASON, reason);
         return response;
     }
 
     public void getTemp(String message) {
         JsonObject userInput = new JsonParser().parse(message).getAsJsonObject();
-        String status = String.valueOf(userInput.get("status")).replace("\"", "");
-        String device = String.valueOf(userInput.get("device")).replace("\"", "");
-        String deviceId = String.valueOf(userInput.get("_id")).replace("\"", "");
+        String status = String.valueOf(userInput.get(STATUS)).replace("\"", "");
+        String device = String.valueOf(userInput.get(DEVICE)).replace("\"", "");
+        String deviceId = String.valueOf(userInput.get(ID)).replace("\"", "");
 
         Gson gson = new Gson();
         HashMap<String, String> response = new HashMap<>();
 
-        response.put("device", device);
-        response.put("_id", deviceId);
-        response.put("status", status);
+        response.put(DEVICE, device);
+        response.put(ID, deviceId);
+        response.put(STATUS, status);
 
         System.out.println("Temperature from device:" + userInput);
         broadcastMessage("changeDeviceStatus=" + gson.toJson(response));
@@ -224,13 +231,13 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
 
     public void getConfirmation(String message) {
         JsonObject userInput = new JsonParser().parse(message).getAsJsonObject();
-        String deviceType = String.valueOf(userInput.get("device")).replace("\"", "");
+        String deviceType = String.valueOf(userInput.get(DEVICE)).replace("\"", "");
         String result = String.valueOf(userInput.get("result")).replace("\"", "");
-        String deviceID = String.valueOf(userInput.get("_id")).replace("\"", "");
-        String status = String.valueOf(userInput.get("status")).replace("\"", "");
+        String deviceID = String.valueOf(userInput.get(ID)).replace("\"", "");
+        String status = String.valueOf(userInput.get(STATUS)).replace("\"", "");
         System.out.println(result);
 
-        if (result.equalsIgnoreCase("success")) {
+        if (result.equalsIgnoreCase(SUCCESS)) {
 
             System.out.println("Result:" + result);
             System.out.println("Confirmation from Devices:" + userInput);
@@ -240,13 +247,13 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
 
 
             if (dbResponse != null) {
-                if ((dbResponse.get("_id").toString().equals(deviceID))) {
-                    if (!(dbResponse.get("status").toString().equals(status))) {
+                if ((dbResponse.get(ID).toString().equals(deviceID))) {
+                    if (!(dbResponse.get(STATUS).toString().equals(status))) {
                         DBConnector.changeDeviceStatus(deviceType, userInput);
-                        response.put("device", deviceType);
-                        response.put("_id", deviceID);
-                        response.put("status", status);
-                        response.put("operation", "success");
+                        response.put(DEVICE, deviceType);
+                        response.put(ID, deviceID);
+                        response.put(STATUS, status);
+                        response.put(OPERATION, SUCCESS);
                     } else {
                         response = error(deviceID + " is already " + status, response);
 
@@ -268,9 +275,9 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         HashMap<String, String> response = new HashMap<>();
         Gson gson = new Gson();
 
-        String deviceType = String.valueOf(userInput.get("device")).replace("\"", "");
-        String deviceID = String.valueOf(userInput.get("_id")).replace("\"", "");
-        String status = String.valueOf(userInput.get("status")).replace("\"", "");
+        String deviceType = String.valueOf(userInput.get(DEVICE)).replace("\"", "");
+        String deviceID = String.valueOf(userInput.get(ID)).replace("\"", "");
+        String status = String.valueOf(userInput.get(STATUS)).replace("\"", "");
         if (deviceType.equals(DeviceType.LAMP.value) ||
                 deviceType.equals(DeviceType.THERMOMETER.value) ||
                 deviceType.equals(DeviceType.CURTAIN.value) ||
@@ -279,17 +286,17 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 deviceType.equals(DeviceType.HEATER.value)) {
             try {
                 DBConnector.insertNewDoc(deviceID, deviceType, status);
-                response.put("device", deviceType);
-                response.put("_id", deviceID);
-                response.put("status", status);
-                response.put("operation", "success");
+                response.put(DEVICE, deviceType);
+                response.put(ID, deviceID);
+                response.put(STATUS, status);
+                response.put(OPERATION, SUCCESS);
             } catch (Exception e) {
                 System.out.println("Failed to add the device");
                 response = error(deviceID + " already exists", response);
             } finally {
                 broadcastMessage("addDevice=" + gson.toJson(response));
             }
-        } else broadcastMessage(gson.toJson(error("unknown deviceType", response)));
+        } else broadcastMessage(gson.toJson(error("unknown " + DEVICE, response)));
     }
 
     public void removeDevice(String jsonData) {
@@ -297,13 +304,13 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         HashMap<String, String> response = new HashMap<>();
         Gson gson = new Gson();
 
-        String deviceID = String.valueOf(userInput.get("_id")).replace("\"", "");
+        String deviceID = String.valueOf(userInput.get(ID)).replace("\"", "");
         try {
             DBConnector.removeDoc(deviceID);
-            response.put("_id", deviceID);
-            response.put("operation", "success");
+            response.put(ID, deviceID);
+            response.put(OPERATION, SUCCESS);
         } catch (Exception e) {
-            response = error(" reason unknown", response);
+            response = error(REASON + " unknown", response);
         } finally {
             broadcastMessage("removeDevice=" + gson.toJson(response));
         }
@@ -312,7 +319,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         Gson removeGson = new Gson();
         DBConnector.removeDoc(userRemove.get("_id").toString().replace("\"", ""));
         HashMap<String, String> removeResponse = new HashMap<>();
-        removeResponse.put("_id", userRemove.get("_id").toString().replace("\"", ""));
+        removeResponse.put(ID, userRemove.get(ID).toString().replace("\"", ""));
         removeResponse.put("device", userRemove.get("device").toString().replace("\"", ""));
         removeResponse.put("operation", "success");
         broadcastMessage("removeDevice=" + removeGson.toJson(removeResponse));*/
