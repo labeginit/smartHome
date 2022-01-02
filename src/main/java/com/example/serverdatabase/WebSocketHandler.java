@@ -195,9 +195,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
     }
 
     private HashMap<String, String> error(HashMap<String, String> response, String deviceID) {
-        response.put("operation", "failed");
-        response.put("reason", deviceID + " contains wrong value");
-        return response;
+        return error(deviceID + " contains wrong value", response);
     }
 
     private HashMap<String, String> error(String reason, HashMap<String, String> response) {
@@ -283,7 +281,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 DBConnector.insertNewDoc(deviceID, deviceType, status);
                 response.put("device", deviceType);
                 response.put("_id", deviceID);
-                response.put("option", status);
+                response.put("status", status);
                 response.put("operation", "success");
             } catch (Exception e) {
                 System.out.println("Failed to add the device");
