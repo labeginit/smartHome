@@ -30,7 +30,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         try {
             jsonData = message.getPayload().split("=", message.getPayload().length())[1];
         } catch (ArrayIndexOutOfBoundsException ignored) {
-            System.out.println("ArrayIndexOutOfBoundsException");
+            // System.out.println("ArrayIndexOutOfBoundsException");
         }
         System.out.println("here is the operation  " + operation);
         System.out.println("json data " + jsonData);
@@ -44,6 +44,12 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 break;
             case ("temperature"):
                 getTemp(jsonData);
+                break;
+            case ("addDevice"):
+                addDevice(jsonData);
+                break;
+            case ("removeDevice"):
+                removeDevice(jsonData);
                 break;
             case ("confirmation"):
                 getConfirmation(jsonData);
@@ -144,7 +150,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 Alarm alarm = new Alarm(id, Integer.parseInt(article.get("status").toString()));
                 smartHouse.addAlarm(alarm);
             }
-            if (deviceType.equals(DeviceType.HEATER.value)){
+            if (deviceType.equals(DeviceType.HEATER.value)) {
                 Heater heater = new Heater(id, Boolean.parseBoolean(article.get("status").toString()));
                 smartHouse.addHeater(heater);
             }
@@ -182,6 +188,12 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
     private HashMap<String, String> error(HashMap<String, String> response, String deviceID) {
         response.put("operation", "failed");
         response.put("reason", deviceID + " contains wrong value");
+        return response;
+    }
+
+    private HashMap<String, String> error(String reason, HashMap<String, String> response) {
+        response.put("operation", "failed");
+        response.put("reason", reason);
         return response;
     }
 
@@ -229,9 +241,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                         response.put("option", status);
                         response.put("operation", "success");
                     } else {
-                        response.put("operation", "failed");
-                        response.put("reason", deviceID + " is already " + status);
-
+                        response = error(deviceID + " is already " + status, response);
 
                     }
                     broadcastMessage("changeDeviceStatus=" + gson.toJson(response));
@@ -244,5 +254,51 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
 
         }
 
+    }
+
+    public void addDevice(String jsonData) {
+        JsonObject userInput = new JsonParser().parse(jsonData).getAsJsonObject();
+        HashMap<String, String> response = new HashMap<>();
+        Gson gson = new Gson();
+
+        String deviceType = String.valueOf(userInput.get("device")).replace("\"", "");
+        String deviceID = String.valueOf(userInput.get("_id")).replace("\"", "");
+        String status = String.valueOf(userInput.get("status")).replace("\"", "");
+        if (deviceType.equals(DeviceType.LAMP.value) ||
+                deviceType.equals(DeviceType.THERMOMETER.value) ||
+                deviceType.equals(DeviceType.CURTAIN.value) ||
+                deviceType.equals(DeviceType.FAN.value) ||
+                deviceType.equals(DeviceType.ALARM.value) ||
+                deviceType.equals(DeviceType.HEATER.value)) {
+            try {
+                DBConnector.insertNewDoc(deviceID, deviceType, status);
+                response.put("device", deviceType);
+                response.put("_id", deviceID);
+                response.put("option", status);
+                response.put("operation", "success");
+            } catch (Exception e) {
+                System.out.println("Failed to add the device");
+                response = error(deviceID + " already exists", response);
+            } finally {
+                broadcastMessage("addDevice=" + gson.toJson(response));
+            }
+        } else broadcastMessage(gson.toJson(error("unknown deviceType", response)));
+    }
+
+    public void removeDevice(String jsonData) {
+        JsonObject userInput = new JsonParser().parse(jsonData).getAsJsonObject();
+        HashMap<String, String> response = new HashMap<>();
+        Gson gson = new Gson();
+
+        String deviceID = String.valueOf(userInput.get("_id")).replace("\"", "");
+        try {
+            DBConnector.removeDoc(deviceID);
+            response.put("_id", deviceID);
+            response.put("operation", "success");
+        } catch (Exception e) {
+            response = error(" reason unknown", response);
+        } finally {
+            broadcastMessage("removeDevice=" + gson.toJson(response));
+        }
     }
 }

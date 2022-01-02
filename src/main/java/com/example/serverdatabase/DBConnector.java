@@ -45,4 +45,15 @@ public class DBConnector {
         return env.get("MONGO_TOKEN");
     }
 
+    static void insertNewDoc(String _id, String deviceType, String status) {
+        Document doc = new Document(ID, _id)
+                .append("device", deviceType)
+                .append("status", status);
+        collection.insertOne(doc);
+    }
+
+    static void removeDoc(String _id) {
+        collection.deleteOne(Filters.eq("_id", _id));
+    }
+
 }
