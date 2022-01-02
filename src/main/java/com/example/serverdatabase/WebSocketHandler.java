@@ -30,7 +30,6 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         try {
             jsonData = message.getPayload().split("=", message.getPayload().length())[1];
         } catch (ArrayIndexOutOfBoundsException ignored) {
-            // System.out.println("ArrayIndexOutOfBoundsException");
         }
         System.out.println("here is the operation  " + operation);
         System.out.println("json data " + jsonData);
@@ -54,16 +53,27 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             case ("confirmation"):
                 getConfirmation(jsonData);
                 break;
+            case ("addNewDevice"):
+                String status = DBConnector.insertNewDoc(jsonData);
+                Gson gson = new Gson();
+                HashMap<String, String> response = new HashMap<>();
+                JsonObject userInput = new JsonParser().parse(jsonData).getAsJsonObject();
+                response.put("_id", userInput.get("_id").toString().replace("\"", ""));
+                response.put("device", userInput.get("device").toString().replace("\"", ""));
+                response.put("operation", "success");
+                response.put("status", status);
+                broadcastMessage("addNewDevice=" + gson.toJson(response));
+                break;
             default:
                 System.out.println("Connected to Client");
         }
     }
 
-    private void broadcastMessage(String test) {
+    private void broadcastMessage(String message) {
         for (WebSocketSession cl : clients) {
             try {
                 if (cl.isOpen())
-                    cl.sendMessage(new TextMessage(test));
+                    cl.sendMessage(new TextMessage(message));
             } catch (Exception e) {
                 clients.remove(cl);
             }
@@ -164,10 +174,9 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         if (dbResponse != null) {
             if ((dbResponse.get("_id").toString().equals(String.valueOf(deviceID)))) {
                 if (!(dbResponse.get("status").toString().equals(String.valueOf(status)))) {
-                    //   DBConnector.changeDeviceStatus(deviceType, jsonObject);
                     response.put("device", deviceType);
                     response.put("_id", deviceID);
-                    response.put("option", String.valueOf(status));
+                    response.put("status", String.valueOf(status));
                     response.put("operation", "success");
                 } else {
                     response.put("operation", "failed");
@@ -238,7 +247,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                         DBConnector.changeDeviceStatus(deviceType, userInput);
                         response.put("device", deviceType);
                         response.put("_id", deviceID);
-                        response.put("option", status);
+                        response.put("status", status);
                         response.put("operation", "success");
                     } else {
                         response = error(deviceID + " is already " + status, response);
@@ -300,5 +309,14 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         } finally {
             broadcastMessage("removeDevice=" + gson.toJson(response));
         }
+/*
+        JsonObject userRemove = new JsonParser().parse(jsonData).getAsJsonObject();
+        Gson removeGson = new Gson();
+        DBConnector.removeDoc(userRemove.get("_id").toString().replace("\"", ""));
+        HashMap<String, String> removeResponse = new HashMap<>();
+        removeResponse.put("_id", userRemove.get("_id").toString().replace("\"", ""));
+        removeResponse.put("device", userRemove.get("device").toString().replace("\"", ""));
+        removeResponse.put("operation", "success");
+        broadcastMessage("removeDevice=" + removeGson.toJson(removeResponse));*/
     }
 }

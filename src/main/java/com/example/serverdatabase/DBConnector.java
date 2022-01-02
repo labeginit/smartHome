@@ -10,7 +10,7 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-
+import com.google.gson.JsonParser;
 import java.util.Map;
 
 public class DBConnector {
@@ -45,6 +45,7 @@ public class DBConnector {
         return env.get("MONGO_TOKEN");
     }
 
+
     static void insertNewDoc(String _id, String deviceType, String status) {
         Document doc = new Document(ID, _id)
                 .append("device", deviceType)
@@ -52,8 +53,27 @@ public class DBConnector {
         collection.insertOne(doc);
     }
 
+    static String insertNewDoc(String message) {
+        JsonObject userInput = new JsonParser().parse(message).getAsJsonObject();
+        String option = null;
+        Document doc = new Document("_id", userInput.get("_id").toString().replace("\"", ""))
+                .append("device", userInput.get("device").toString().replace("\"", ""));
+        if (userInput.get("device").toString().replace("\"", "").equals("lamp")) {
+            doc.append("status", "false");
+            option = "false";
+        } else if (userInput.get("device").toString().replace("\"", "").equals("alarm")) {
+            doc.append("status", "0");
+            option = "0";
+        }
+        collection.insertOne(doc);
+        return option;
+
+    }
+
     static void removeDoc(String _id) {
         collection.deleteOne(Filters.eq("_id", _id));
     }
 
+
 }
+
