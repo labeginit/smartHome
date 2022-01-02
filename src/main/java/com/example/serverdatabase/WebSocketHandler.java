@@ -30,6 +30,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         try {
             jsonData = message.getPayload().split("=", message.getPayload().length())[1];
         } catch (ArrayIndexOutOfBoundsException ignored) {
+            System.out.println("ArrayIndexOutOfBoundsException");
         }
         System.out.println("here is the operation  " + operation);
         System.out.println("json data " + jsonData);
@@ -67,7 +68,6 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 removeResponse.put("device", userRemove.get("device").toString().replace("\"", ""));
                 removeResponse.put("operation", "success");
                 broadcastMessage("removeDevice=" + removeGson.toJson(removeResponse));
-
             default:
                 System.out.println("Connected to Client");
         }
@@ -110,7 +110,12 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 deviceToBeChanged = dbResponse.get("device").toString();
                 String status = String.valueOf(userInput.get("status")).replace("\"", "");
 
-                if (deviceToBeChanged.equals(DeviceType.LAMP.value) || deviceToBeChanged.equals(DeviceType.THERMOMETER.value) || deviceToBeChanged.equals(DeviceType.CURTAIN.value) || deviceToBeChanged.equals(DeviceType.FAN.value) || deviceToBeChanged.equals(DeviceType.ALARM.value)) {
+                if (deviceToBeChanged.equals(DeviceType.LAMP.value) ||
+                        deviceToBeChanged.equals(DeviceType.THERMOMETER.value) ||
+                        deviceToBeChanged.equals(DeviceType.CURTAIN.value) ||
+                        deviceToBeChanged.equals(DeviceType.FAN.value) ||
+                        deviceToBeChanged.equals(DeviceType.ALARM.value) ||
+                        deviceToBeChanged.equals(DeviceType.HEATER.value)) {
                     try {
                         response = deviceHandler(dbResponse, deviceToBeChanged, deviceID, status, userInput);
                     } catch (IllegalArgumentException exception) {
@@ -158,6 +163,10 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             if (deviceType.equals(DeviceType.ALARM.value)) {
                 Alarm alarm = new Alarm(id, Integer.parseInt(article.get("status").toString()));
                 smartHouse.addAlarm(alarm);
+            }
+            if (deviceType.equals(DeviceType.HEATER.value)) {
+                Heater heater = new Heater(id, Boolean.parseBoolean(article.get("status").toString()));
+                smartHouse.addHeater(heater);
             }
         }
         Gson gson = new Gson();
@@ -249,7 +258,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 }
             } else {
                 //The device could not change
-                System.out.println("Something went");
+                System.out.println("Something went wrong");
                 System.out.println(result);
             }
 
