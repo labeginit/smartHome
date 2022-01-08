@@ -11,6 +11,7 @@ import com.mongodb.client.model.Filters;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import com.google.gson.JsonParser;
+
 import java.util.Map;
 
 public class DBConnector {
@@ -31,7 +32,7 @@ public class DBConnector {
         BasicDBObject newDocument = new BasicDBObject();
         query.put(ID, jsonObject.get(ID).toString().replace("\"", ""));
 
-        if (deviceType.equals(DeviceType.LAMP.value) || deviceType.equals(DeviceType.THERMOMETER.value) || deviceType.equals(DeviceType.FAN.value) || deviceType.equals(DeviceType.CURTAIN.value) || deviceType.equals(DeviceType.ALARM.value) || deviceType.equals(DeviceType.HEATER.value)){
+        if (deviceType.equals(DeviceType.LAMP.value) || deviceType.equals(DeviceType.THERMOMETER.value) || deviceType.equals(DeviceType.FAN.value) || deviceType.equals(DeviceType.CURTAIN.value) || deviceType.equals(DeviceType.ALARM.value) || deviceType.equals(DeviceType.HEATER.value)) {
             newDocument.put("status", jsonObject.get("status").toString().replace("\"", ""));
         }
 
@@ -40,35 +41,27 @@ public class DBConnector {
         collection.updateOne(query, updateObject);
     }
 
-    static String token(){
-        Map<String,String> env = System.getenv();
+    static String token() {
+        Map<String, String> env = System.getenv();
         return env.get("MONGO_TOKEN");
     }
 
 
-    static void insertNewDoc(String _id, String deviceType, String status) {
-        Document doc = new Document(ID, _id)
-                .append("device", deviceType)
-                .append("status", status);
-        collection.insertOne(doc);
-    }
-
     static String insertNewDoc(String message) {
         JsonObject userInput = new JsonParser().parse(message).getAsJsonObject();
-        String option = null;
-        Document doc = new Document("_id", userInput.get("_id").toString().replace("\"", ""))
-                .append("device", userInput.get("device").toString().replace("\"", ""));
-        if (userInput.get("device").toString().replace("\"", "").equals("lamp")) {
-            doc.append("status", "false");
-            option = "false";
-        } else if (userInput.get("device").toString().replace("\"", "").equals("alarm")) {
-            doc.append("status", "0");
-            option = "0";
+        String status = "";
+        if (userInput.get("device").toString().replace("\"", "").equals("fan") || userInput.get("device").toString().replace("\"", "").equals("alarm") || userInput.get("device").toString().replace("\"", "").equals("thermometer")) {
+            status = "0";
+        } else {
+            status = "false";
         }
+        Document doc = new Document(ID, userInput.get("_id").toString().replace("\"", ""))
+                .append("device", userInput.get("device").toString().replace("\"", ""))
+                .append("status", status);
         collection.insertOne(doc);
-        return option;
-
+        return status;
     }
+
 
     static void removeDoc(String _id) {
         collection.deleteOne(Filters.eq("_id", _id));
