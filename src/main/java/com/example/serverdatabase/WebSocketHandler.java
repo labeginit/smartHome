@@ -61,26 +61,55 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 getConfirmation(jsonData);
                 break;
             case ("addNewDevice"):
-                String status = DBConnector.insertNewDoc(jsonData);
-                Gson gson = new Gson();
-                HashMap<String, String> response = new HashMap<>();
-                JsonObject userInput = new JsonParser().parse(jsonData).getAsJsonObject();
-                response.put(ID, userInput.get(ID).toString().replace("\"", ""));
-                response.put(DEVICE, userInput.get(DEVICE).toString().replace("\"", ""));
-                response.put(OPERATION, SUCCESS);
-                response.put(STATUS, status);
-                broadcastMessage("addNewDevice=" + gson.toJson(response));
+                addNewDevice(jsonData, session.getId());
                 break;
             default:
                 System.out.println("Connected to Client");
         }
     }
 
-    private void broadcastMessage(String message) {
+    private void addNewDevice(String message, String clientID) {
+        HashMap<String, String> response = new HashMap<>();
+        JsonObject userInput = new JsonParser().parse(message).getAsJsonObject();
+        Gson gson = new Gson();
+        try {
+            if (DBConnector.findDevice(userInput.get("_id").toString().replace("\"", "")) == null) {
+                String status = DBConnector.insertNewDoc(message);
+                response.put(ID, userInput.get(ID).toString().replace("\"", ""));
+                response.put(DEVICE, userInput.get(DEVICE).toString().replace("\"", ""));
+                response.put(OPERATION, SUCCESS);
+                response.put(STATUS, status);
+                broadcastMessage("addNewDevice=" + gson.toJson(response));
+            } else {
+                response.put("operation", "failed");
+                response.put("reason", "_id already exists");
+                sendMessageToClient(gson.toJson(response), clientID);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("error", "an error has occured");
+            sendMessageToClient(gson.toJson(response), clientID);
+        }
+    }
+
+    private void broadcastMessage(String message) { //All connected clients gets the message
         for (WebSocketSession cl : clients) {
             try {
                 if (cl.isOpen())
                     cl.sendMessage(new TextMessage(message));
+            } catch (Exception e) {
+                clients.remove(cl);
+            }
+        }
+    }
+
+    private void sendMessageToClient(String message, String id) { //Send message to a specific client
+        for (WebSocketSession cl : clients) {
+            try {
+                if (cl.getId().equals(id)) {
+                    if (cl.isOpen())
+                        cl.sendMessage(new TextMessage(message));
+                }
             } catch (Exception e) {
                 clients.remove(cl);
             }
@@ -320,14 +349,5 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         } finally {
             broadcastMessage("removeDevice=" + gson.toJson(response));
         }
-/*
-        JsonObject userRemove = new JsonParser().parse(jsonData).getAsJsonObject();
-        Gson removeGson = new Gson();
-        DBConnector.removeDoc(userRemove.get("_id").toString().replace("\"", ""));
-        HashMap<String, String> removeResponse = new HashMap<>();
-        removeResponse.put(ID, userRemove.get(ID).toString().replace("\"", ""));
-        removeResponse.put("device", userRemove.get("device").toString().replace("\"", ""));
-        removeResponse.put("operation", "success");
-        broadcastMessage("removeDevice=" + removeGson.toJson(removeResponse));*/
     }
 }
