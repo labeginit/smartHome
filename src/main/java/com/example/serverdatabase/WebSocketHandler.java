@@ -52,7 +52,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 getTemp(jsonData);
                 break;
             case ("addDevice"):
-                addDevice(jsonData);
+                //addDevice(jsonData);
                 break;
             case ("removeDevice"):
                 removeDevice(jsonData);
@@ -61,26 +61,54 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 getConfirmation(jsonData);
                 break;
             case ("addNewDevice"):
-                String status = DBConnector.insertNewDoc(jsonData);
-                Gson gson = new Gson();
-                HashMap<String, String> response = new HashMap<>();
-                JsonObject userInput = new JsonParser().parse(jsonData).getAsJsonObject();
-                response.put(ID, userInput.get(ID).toString().replace("\"", ""));
-                response.put(DEVICE, userInput.get(DEVICE).toString().replace("\"", ""));
-                response.put(OPERATION, SUCCESS);
-                response.put(STATUS, status);
-                broadcastMessage("addNewDevice=" + gson.toJson(response));
+                addNewDevice(jsonData, session.getId());
                 break;
             default:
                 System.out.println("Connected to Client");
         }
     }
 
-    private void broadcastMessage(String message) {
+    public void addNewDevice(String message, String clientID) {
+        HashMap<String, String> response = new HashMap<>();
+        JsonObject userInput = new JsonParser().parse(message).getAsJsonObject();
+        Gson gson = new Gson();
+        try {
+            if (DBConnector.findDevice(userInput.get("_id").toString().replace("\"", "")) == null) {
+                String status = DBConnector.insertNewDoc(message);
+                response.put(ID, userInput.get(ID).toString().replace("\"", ""));
+                response.put(DEVICE, userInput.get(DEVICE).toString().replace("\"", ""));
+                response.put(OPERATION, SUCCESS);
+                response.put(STATUS, status);
+                broadcastMessage("addNewDevice=" + gson.toJson(response));
+            } else {
+                response = error("_id already exists", response);
+                sendMessageToClient(gson.toJson(response), clientID);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("error", "an error has occured");
+            sendMessageToClient(gson.toJson(response), clientID);
+        }
+    }
+
+    private void broadcastMessage(String message) { //All connected clients gets the message
         for (WebSocketSession cl : clients) {
             try {
                 if (cl.isOpen())
                     cl.sendMessage(new TextMessage(message));
+            } catch (Exception e) {
+                clients.remove(cl);
+            }
+        }
+    }
+
+    private void sendMessageToClient(String message, String id) { //Send message to a specific client
+        for (WebSocketSession cl : clients) {
+            try {
+                if (cl.getId().equals(id)) {
+                    if (cl.isOpen())
+                        cl.sendMessage(new TextMessage(message));
+                }
             } catch (Exception e) {
                 clients.remove(cl);
             }
@@ -111,7 +139,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             String deviceToBeChanged;
             if (dbResponse != null) {
                 deviceToBeChanged = dbResponse.get(DEVICE).toString();
-                String status = String.valueOf(userInput.get(STATUS)).replace("\"", "");
+                String status = String.valueOf(userInput.get("status")).replace("\"", "");
 
                 if (deviceToBeChanged.equals(DeviceType.LAMP.value) ||
                         deviceToBeChanged.equals(DeviceType.THERMOMETER.value) ||
@@ -131,9 +159,10 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             }
             Gson gson = new Gson();
             if (response != null) {
-                if (response.get(OPERATION).equals(SUCCESS))
+                if (response.get(OPERATION).equals(SUCCESS)) {
                     broadcastMessage("changeDeviceStatus=" + gson.toJson(response));
-                broadcastMessage("changeDeviceStatus2Device=" + gson.toJson(response));
+                    broadcastMessage("changeDeviceStatus2Device=" + gson.toJson(response));
+                }
             }
             return response;
         }
@@ -223,6 +252,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         response.put(DEVICE, device);
         response.put(ID, deviceId);
         response.put(STATUS, status);
+        response.put("operation", "success");
 
         System.out.println("Temperature from device:" + userInput);
         broadcastMessage("changeDeviceStatus=" + gson.toJson(response));
@@ -270,11 +300,11 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
 
     }
 
+    /*
     public void addDevice(String jsonData) {
         JsonObject userInput = new JsonParser().parse(jsonData).getAsJsonObject();
         HashMap<String, String> response = new HashMap<>();
         Gson gson = new Gson();
-
         String deviceType = String.valueOf(userInput.get(DEVICE)).replace("\"", "");
         String deviceID = String.valueOf(userInput.get(ID)).replace("\"", "");
         String status = String.valueOf(userInput.get(STATUS)).replace("\"", "");
@@ -298,6 +328,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             }
         } else broadcastMessage(gson.toJson(error("unknown " + DEVICE, response)));
     }
+     */
 
     public void removeDevice(String jsonData) {
         JsonObject userInput = new JsonParser().parse(jsonData).getAsJsonObject();
@@ -309,19 +340,11 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             DBConnector.removeDoc(deviceID);
             response.put(ID, deviceID);
             response.put(OPERATION, SUCCESS);
+            response.put("device", userInput.get("device").toString().replace("\"", ""));
         } catch (Exception e) {
             response = error(REASON + " unknown", response);
         } finally {
             broadcastMessage("removeDevice=" + gson.toJson(response));
         }
-/*
-        JsonObject userRemove = new JsonParser().parse(jsonData).getAsJsonObject();
-        Gson removeGson = new Gson();
-        DBConnector.removeDoc(userRemove.get("_id").toString().replace("\"", ""));
-        HashMap<String, String> removeResponse = new HashMap<>();
-        removeResponse.put(ID, userRemove.get(ID).toString().replace("\"", ""));
-        removeResponse.put("device", userRemove.get("device").toString().replace("\"", ""));
-        removeResponse.put("operation", "success");
-        broadcastMessage("removeDevice=" + removeGson.toJson(removeResponse));*/
     }
 }
