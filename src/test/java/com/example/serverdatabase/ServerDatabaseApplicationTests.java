@@ -5,14 +5,19 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.web.socket.WebSocketSession;
+
 import java.util.HashMap;
 
 @ExtendWith(MockitoExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest
 class ServerDatabaseApplicationTests {
+    @Mock
+    WebSocketSession session;
     WebSocketHandler socketHandler = new WebSocketHandler();
 
     @Test
@@ -22,7 +27,7 @@ class ServerDatabaseApplicationTests {
         HashMap response = socketHandler.changeDeviceStatus(message);
         assert(response.get("message")).equals(message);
     }
-/*
+    /*
     @Test
     @Order(2)
     void getDevices() {
@@ -34,7 +39,7 @@ class ServerDatabaseApplicationTests {
     @Order(3)
     void addThermo() {
         String onceChange = socketHandler.getDeviceStatuses();
-        socketHandler.addDevice("{'_id':'Test Thermometer',device:'thermometer','status':'20'}");
+        socketHandler.addNewDevice("{'_id':'Test Thermometer',device:'thermometer','status':'20'}", session.getId());
         String twiceChange = socketHandler.getDeviceStatuses();
         assert(!twiceChange.equals(onceChange));
     }
@@ -43,16 +48,26 @@ class ServerDatabaseApplicationTests {
     @Order(3)
     void addLamp() {
         String onceChange = socketHandler.getDeviceStatuses();
-        socketHandler.addDevice("{'_id':'Test Lamp',device:'lamp','status':'false'}");
+        socketHandler.addNewDevice("{'_id':'Test Lamp',device:'lamp','status':'false'}", session.getId());
         String twiceChange = socketHandler.getDeviceStatuses();
         assert(!twiceChange.equals(onceChange));
     }
 
     @Test
     @Order(3)
+    void addLampTwice() {
+        socketHandler.addNewDevice("{'_id':'Test Lamp',device:'lamp','status':'false'}", session.getId());
+        String onceChange = socketHandler.getDeviceStatuses();
+        socketHandler.addNewDevice("{'_id':'Test Lamp',device:'lamp','status':'false'}", session.getId());
+        String twiceChange = socketHandler.getDeviceStatuses();
+        assert(twiceChange.equals(onceChange));
+    }
+
+    @Test
+    @Order(3)
     void addAlarm() {
         String onceChange = socketHandler.getDeviceStatuses();
-        socketHandler.addDevice("{'_id':'Test Alarm',device:'alarm','status':'0'}");
+        socketHandler.addNewDevice("{'_id':'Test Alarm',device:'alarm','status':'0'}", session.getId());
         String twiceChange = socketHandler.getDeviceStatuses();
         assert(!twiceChange.equals(onceChange));
     }
@@ -61,7 +76,7 @@ class ServerDatabaseApplicationTests {
     @Order(3)
     void addHeater() {
         String onceChange = socketHandler.getDeviceStatuses();
-        socketHandler.addDevice("{'_id':'Test Heater',device:'heater','status':'false'}");
+        socketHandler.addNewDevice("{'_id':'Test Heater',device:'heater','status':'false'}", session.getId());
         String twiceChange = socketHandler.getDeviceStatuses();
         assert(!twiceChange.equals(onceChange));
     }
@@ -70,7 +85,7 @@ class ServerDatabaseApplicationTests {
     @Order(3)
     void addFan() {
         String onceChange = socketHandler.getDeviceStatuses();
-        socketHandler.addDevice("{'_id':'Test Fan',device:'fan','status':'0'}");
+        socketHandler.addNewDevice("{'_id':'Test Fan',device:'fan','status':'0'}", session.getId());
         String twiceChange = socketHandler.getDeviceStatuses();
         assert(!twiceChange.equals(onceChange));
     }

@@ -50,10 +50,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 break;
             case ("temperature"):
                 getTemp(jsonData);
-                break;
-            case ("addDevice"):
-                //addDevice(jsonData);
-                break;
+                break;     
             case ("removeDevice"):
                 removeDevice(jsonData);
                 break;
@@ -68,7 +65,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         }
     }
 
-    private void addNewDevice(String message, String clientID) {
+    public void addNewDevice(String message, String clientID) {
         HashMap<String, String> response = new HashMap<>();
         JsonObject userInput = new JsonParser().parse(message).getAsJsonObject();
         Gson gson = new Gson();
@@ -81,8 +78,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 response.put(STATUS, status);
                 broadcastMessage("addNewDevice=" + gson.toJson(response));
             } else {
-                response.put("operation", "failed");
-                response.put("reason", "_id already exists");
+                response = error("_id already exists", response);
                 sendMessageToClient(gson.toJson(response), clientID);
             }
         } catch (Exception e) {
@@ -306,7 +302,6 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         JsonObject userInput = new JsonParser().parse(jsonData).getAsJsonObject();
         HashMap<String, String> response = new HashMap<>();
         Gson gson = new Gson();
-
         String deviceType = String.valueOf(userInput.get(DEVICE)).replace("\"", "");
         String deviceID = String.valueOf(userInput.get(ID)).replace("\"", "");
         String status = String.valueOf(userInput.get(STATUS)).replace("\"", "");
@@ -330,8 +325,8 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             }
         } else broadcastMessage(gson.toJson(error("unknown " + DEVICE, response)));
     }
-
      */
+
 
     public void removeDevice(String jsonData) {
         JsonObject userInput = new JsonParser().parse(jsonData).getAsJsonObject();
