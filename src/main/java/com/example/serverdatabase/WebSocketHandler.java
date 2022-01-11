@@ -50,10 +50,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 break;
             case ("temperature"):
                 getTemp(jsonData);
-                break;
-            case ("addDevice"):
-                //addDevice(jsonData);
-                break;
+                break;     
             case ("removeDevice"):
                 removeDevice(jsonData);
                 break;
@@ -329,6 +326,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         } else broadcastMessage(gson.toJson(error("unknown " + DEVICE, response)));
     }
      */
+
 
     public void removeDevice(String jsonData) {
         JsonObject userInput = new JsonParser().parse(jsonData).getAsJsonObject();
